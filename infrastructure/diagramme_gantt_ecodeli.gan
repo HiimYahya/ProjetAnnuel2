@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><project name="EcoDeli" company="EcoDeli" webLink="" view-date="2025-02-12" view-index="0" gantt-divider-location="300" resource-divider-location="300" version="3.3.3316" locale="fr_FR">
+    <description/>
+    <view zooming-state="default:2" id="gantt-chart">
+        <field id="tpd15" name="Notes" width="20" order="-1"/>
+        <field id="tpd3" name="Nom" width="162" order="0"/>
+        <field id="tpd4" name="Date de début" width="61" order="1"/>
+        <field id="tpd5" name="Date de fin" width="61" order="2"/>
+        <option id="filter.completedTasks" value="false"/>
+        <option id="filter.dueTodayTasks" value="false"/>
+        <option id="filter.overdueTasks" value="false"/>
+        <option id="filter.inProgressTodayTasks" value="false"/>
+    </view>
+    <view id="resource-table">
+        <field id="0" name="Nom" width="210" order="0"/>
+        <field id="1" name="Rôle par défaut" width="86" order="1"/>
+    </view>
+    <!-- -->
+    <calendars>
+        <day-types>
+            <day-type id="0"/>
+            <day-type id="1"/>
+            <default-week id="1" name="default" sun="0" mon="0" tue="0" wed="0" thu="0" fri="0" sat="0"/>
+            <only-show-weekends value="false"/>
+            <overriden-day-types/>
+            <days/>
+        </day-types>
+    </calendars>
+    <tasks empty-milestones="true">
+        <taskproperties>
+            <taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
+            <taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
+            <taskproperty id="tpd2" name="info" type="default" valuetype="icon"/>
+            <taskproperty id="tpd3" name="name" type="default" valuetype="text"/>
+            <taskproperty id="tpd4" name="begindate" type="default" valuetype="date"/>
+            <taskproperty id="tpd5" name="enddate" type="default" valuetype="date"/>
+            <taskproperty id="tpd6" name="duration" type="default" valuetype="int"/>
+            <taskproperty id="tpd7" name="completion" type="default" valuetype="int"/>
+            <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
+            <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
+        </taskproperties>
+        <task id="1" uid="05a74e020a0f44a9825f43a9bba43402" name="Analyse du cahier des charges" meeting="false" start="2025-02-20" duration="2" complete="0" expand="true"/>
+        <task id="2" uid="650fa12eafc14c7d9e5ad8ef6892228d" name="Mise en place de l'équipe" meeting="false" start="2025-02-23" duration="1" complete="0" expand="true"/>
+        <task id="3" uid="bd1f5f138b39483c8e09f6b82fd485e0" name="Mise en place des outils" meeting="false" start="2025-02-25" duration="1" complete="0" expand="true"/>
+        <task id="4" uid="2e171de5bee943c29160ddd5dd37d19d" name="Planification détaillée" meeting="false" start="2025-02-27" duration="1" complete="0" expand="true"/>
+        <task id="5" uid="ffa037e446c14c0c9e71aebafdee6073" name="Conception de la BDD" meeting="false" start="2025-03-01" duration="6" complete="0" expand="true"/>
+        <task id="6" uid="113b08b4fcc043bca31488262922c3aa" name="Développement API principale" meeting="false" start="2025-03-08" duration="9" complete="0" expand="true"/>
+        <task id="7" uid="05503536bbbb4cd3865724f319d90d1c" name="Développement espace livreurs" meeting="false" start="2025-03-18" duration="7" complete="0" expand="true"/>
+        <task id="8" uid="2a8e93c383214bf4bd85f0c63c9617c9" name="Développement espace clients" meeting="false" start="2025-03-26" duration="7" complete="0" expand="true"/>
+        <task id="9" uid="9dc4ebc5ffde44a4938cfdc359065b6c" name="Développement espace commerçants" meeting="false" start="2025-04-03" duration="6" complete="0" expand="true"/>
+        <task id="10" uid="9f29000e9b79479caef50af7a11740dd" name="Développement espace prestataires" meeting="false" start="2025-04-03" duration="6" complete="0" expand="true"/>
+        <task id="11" uid="97f90749a34f4e7e9ce390c77b882ec8" name="Développement back-office" meeting="false" start="2025-04-10" duration="4" complete="0" expand="true"/>
+        <task id="12" uid="55763cde815c4d418495b429a05cbb2c" name="Intégration Stripe" meeting="false" start="2025-04-10" duration="2" complete="0" expand="true"/>
+        <task id="13" uid="6d9845bb245e4e42b7f9ed83750c5857" name="Système de notifications push" meeting="false" start="2025-04-13" duration="2" complete="0" expand="true"/>
+        <task id="14" uid="dcbc9d5648ef48d8aadd463505100ec3" name="Système multilingue" meeting="false" start="2025-04-16" duration="2" complete="0" expand="true"/>
+        <task id="15" uid="3231f585825d44fd81fde934d35644e1" name="Tests d'intégration Lot 1" meeting="false" start="2025-04-19" duration="1" complete="0" expand="true"/>
+        <task id="16" uid="53d80593785e434895cee4a69b7fb9ce" name="Développement application Java" meeting="false" start="2025-04-21" duration="11" complete="0" expand="true"/>
+        <task id="17" uid="39997e4beb3749caa895243567c2375e" name="Génération des données test" meeting="false" start="2025-04-21" duration="3" complete="0" expand="true"/>
+        <task id="18" uid="f895c91dce1e4486bb86f2553dc7db01" name="Implémentation diagrammes stats" meeting="false" start="2025-04-25" duration="7" complete="0" expand="true"/>
+        <task id="19" uid="ccce46a2b29e43a18b9ab27f450eeb41" name="Développement application Android" meeting="false" start="2025-05-03" duration="16" complete="0" expand="true"/>
+        <task id="20" uid="e9550828f022447791db8de952e3bafe" name="Système de cartes NFC livreurs" meeting="false" start="2025-05-20" duration="3" complete="0" expand="true"/>
+        <task id="21" uid="6bb435ef492e43718a5a233fe08a6d42" name="Tests d'intégration Lot 2" meeting="false" start="2025-05-24" duration="1" complete="0" expand="true"/>
+        <task id="22" uid="83d79b152caf4aa9be11434cbe94e5a6" name="Configuration serveurs Paris" meeting="false" start="2025-03-16" duration="13" complete="0" expand="true"/>
+        <task id="23" uid="d84500dbf0cc421c95b342f044d94347" name="Configuration serveurs Marseille" meeting="false" start="2025-03-30" duration="9" complete="0" expand="true"/>
+        <task id="24" uid="ab124dabb8fb47f0ba29488265407f15" name="Configuration serveurs Lyon" meeting="false" start="2025-04-09" duration="9" complete="0" expand="true"/>
+        <task id="25" uid="87b90a18ee604f1d8ba23195ff04d289" name="Configuration serveurs Lille" meeting="false" start="2025-04-19" duration="9" complete="0" expand="true"/>
+        <task id="26" uid="ae6e268ba1bd4204b12bb61f1f796435" name="Déploiement Docker" meeting="false" start="2025-05-26" duration="13" complete="0" expand="true"/>
+        <task id="27" uid="7e31f8956e9e4334972a84968ad9e13b" name="Tests de sécurité" meeting="false" start="2025-06-09" duration="6" complete="0" expand="true"/>
+        <task id="28" uid="599ec1fe344a4f48a9b281eb828f2890" name="Intégration des lots" meeting="false" start="2025-06-16" duration="6" complete="0" expand="true"/>
+        <task id="29" uid="9f576896fc96478089232a6481ea8ac4" name="Tests d'intégration complets" meeting="false" start="2025-06-23" duration="4" complete="0" expand="true"/>
+        <task id="30" uid="0ea716268bf041349d3155638833c386" name="Correction des bugs" meeting="false" start="2025-06-28" duration="2" complete="0" expand="true"/>
+        <task id="31" uid="f40217b6669145a388f9f2132095cac5" name="Documentation technique" meeting="false" start="2025-07-01" duration="5" complete="0" expand="true"/>
+        <task id="32" uid="1213588a3c314f65a4b290565b14b58f" name="Élaboration du budget" meeting="false" start="2025-07-01" duration="2" complete="0" expand="true"/>
+        <task id="33" uid="239ec5167b564dba81cd8b4e20e3a5c9" name="Finalisation du Gantt" meeting="false" start="2025-07-01" duration="1" complete="0" expand="true"/>
+        <task id="34" uid="4355c0e8dd9b410abb70aed768f219f3" name="Analyse des risques" meeting="false" start="2025-07-03" duration="2" complete="0" expand="true"/>
+        <task id="35" uid="72424c07be164cba8f7f711fe594df31" name="Documentation utilisateur" meeting="false" start="2025-07-06" duration="3" complete="0" expand="true"/>
+        <task id="36" uid="fa84d73e089a4ec383931b5539bb18e0" name="Préparation présentation finale" meeting="false" start="2025-07-10" duration="2" complete="0" expand="true"/>
+        <task id="37" uid="79dbebeab31d4ed99f225eb25f08c289" name="Livraison finale" meeting="false" start="2025-07-13" duration="1" complete="0" expand="true"/>
+    </tasks>
+    <resources/>
+    <allocations/>
+    <vacations/>
+    <previous/>
+    <roles roleset-name="Default"/>
+</project>
