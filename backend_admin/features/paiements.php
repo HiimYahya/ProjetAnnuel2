@@ -21,7 +21,7 @@ $conn = getConnexion();
 
 <?php include '../fonctions/header.php'; ?>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
 
     <div class="container py-4">
         <h1 class="mb-4">Liste des Paiements</h1>
@@ -29,9 +29,10 @@ $conn = getConnexion();
             <a href='backend.php'class='btn btn-primary btn-sm'>Retour</a>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <?php include '../fonctions/darkmode.php'; ?>
-        <?php include '../fonctions/footer.php'; ?>
-
 </body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<?php include '../fonctions/darkmode.php'; ?>
+<?php include '../fonctions/footer.php'; ?>
+
 </html>

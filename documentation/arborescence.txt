@@ -1,0 +1,79 @@
+/ (Racine)
+│
+├── index.php                    # Page d'accueil
+├── login.php                    # Connexion (multirôle)
+├── register.php                 # Inscription (client, livreur, commerçant, prestataire)
+├── tutoriel/                    # Tutoriels utilisateurs (overlay à la 1re connexion)
+│
+├── assets/
+│   ├── css/
+│   ├── js/
+│   ├── img/
+│
+├── api/                         # API REST (multi-services : annonces, paiements, etc.)
+│   └── v1/
+│       └── ...
+│
+├── features/
+│   ├── backend.php              # Vue d'ensemble backoffice
+│   ├── modify/
+│   │   ├── modify.php           # Détail + édition d'enregistrement
+│   │   └── delete.php           # Suppression d’un enregistrement
+│   │
+│   ├── livreurs/
+│   │   ├── index.php            # Liste et gestion des livreurs
+│   │   ├── create.php           # Ajout de livreur
+│   │   └── profile.php          # Profil personnel livreur
+│   │
+│   ├── clients/
+│   │   ├── index.php
+│   │   ├── annonces.php         # Annonces déposées
+│   │   ├── commandes.php        # Prestations ou livraisons demandées
+│   │   └── box.php              # Gestion box de stockage
+│   │
+│   ├── commercants/
+│   │   ├── index.php
+│   │   ├── annonces.php
+│   │   └── factures.php
+│   │
+│   ├── prestataires/
+│   │   ├── index.php
+│   │   ├── calendrier.php
+│   │   ├── prestations.php
+│   │   └── factures.php
+│   │
+│   ├── livraisons/
+│   │   ├── index.php
+│   │   ├── suivi.php
+│   │   └── historique.php
+│   │
+│   ├── paiements/
+│   │   ├── index.php
+│   │   ├── stripe.php            # Intégration Stripe
+│   │   └── factures.php
+│
+├── dashboard/
+│   ├── admin.php                 # Dashboard principal admin
+│   ├── stats.php                 # Statistiques globales (préparé pour Java)
+│   ├── utilisateurs.php
+│
+├── docs/
+│   ├── pdf/                      # Factures et documents générés (accessibles + archivés)
+│
+├── langues/
+│   └── fr.php, en.php, es.php    # Système de traduction multilingue (clé/valeur)
+│
+├── fonctions/
+│   ├── db.php
+│   ├── fonctions.php
+│   ├── darkmode.php
+│   ├── header.php
+│   └── footer.php
+│
+├── mobile/
+│   └── android-app.apk            # APK Android pour clients (uploadé ou lien)
+│
+└── java-app/
+    ├── rapport-stats.jar          # Application Java autonome (pour stats)
+    └── dataset/                   # Fichiers d'exemple, .csv, .json, etc.
+

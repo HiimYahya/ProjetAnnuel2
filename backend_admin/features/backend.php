@@ -20,7 +20,7 @@ $conn = getConnexion();
 
 <?php include '../fonctions/header.php'; ?>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
 <div class="container py-4">
     <h1 class="mb-4">Backend : Vue d'ensemble</h1>
 
@@ -46,7 +46,6 @@ $conn = getConnexion();
 
 </div>
 
-<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <?php include '../fonctions/darkmode.php'; ?>
 <?php include '../fonctions/footer.php'; ?>
