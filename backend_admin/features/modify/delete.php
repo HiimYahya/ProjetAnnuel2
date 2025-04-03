@@ -19,4 +19,3 @@ $stmt->execute();
 
 header("Location: ../backend.php");
 exit;
-?>

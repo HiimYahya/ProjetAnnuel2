@@ -15,7 +15,6 @@ $conn = getConnexion();
     <meta charset="utf-8">
     <title>Liste des Clients</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../features.css">
     <script src="../assets/js/color-modes.js"></script>
 </head>
 
