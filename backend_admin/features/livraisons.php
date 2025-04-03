@@ -10,10 +10,10 @@ $conn = getConnexion();
 
 <!doctype html>
 <html lang="fr" data-bs-theme="auto">
-
+    
 <head>
     <meta charset="utf-8">
-    <title>Liste des livreurs</title>
+    <title>Liste des Livraisons</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../features.css">
     <script src="../assets/js/color-modes.js"></script>
@@ -24,8 +24,8 @@ $conn = getConnexion();
 <body>
 
     <div class="container py-4">
-        <h1 class="mb-4">Liste des Livreurs</h1>
-            <?php afficherAvecLimite($conn, 'livreurs', 'id, nom, statut', 1000, 'DESC'); ?>
+        <h1 class="mb-4">Liste des Livraisons</h1>
+            <?php afficherAvecLimite($conn, 'livraisons', 'id, id_client, id_livreur, statut', 5, 'DESC'); ?>
             <a href='backend.php'class='btn btn-primary btn-sm'>Retour</a>
     </div>
 
