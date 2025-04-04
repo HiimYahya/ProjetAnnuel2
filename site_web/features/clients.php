@@ -13,7 +13,8 @@ $conn = getConnexion();
 
 <head>
     <meta charset="utf-8">
-    <title>Liste des livreurs</title>
+    <title>Liste des Clients</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="../assets/js/color-modes.js"></script>
 </head>
 
@@ -22,15 +23,15 @@ $conn = getConnexion();
 <body class="d-flex flex-column min-vh-100">
 
     <div class="container py-4">
-        <h1 class="mb-4">Liste des Livreurs</h1>
-            <?php afficherAvecLimite($conn, 'livreurs', 'id, nom, statut', 1000, 'DESC'); ?>
+        <h1 class="mb-4">Liste des Clients</h1>
+            <?php afficherAvecLimite($conn, 'clients', 'id, nom, adresse', 5, 'DESC'); ?>
             <a href='backend.php'class='btn btn-primary btn-sm'>Retour</a>
     </div>
 
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<?php include '../fonctions/darkmode.php'; ?>
+<script src="../assets/js/darkmode.js"></script>
 <?php include '../fonctions/footer.php'; ?>
 
 </html>

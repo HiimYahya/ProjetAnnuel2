@@ -31,7 +31,7 @@ $conn = getConnexion();
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<?php include '../fonctions/darkmode.php'; ?>
+<script src="../assets/js/darkmode.js"></script>
 <?php include '../fonctions/footer.php'; ?>
 
 </html>
