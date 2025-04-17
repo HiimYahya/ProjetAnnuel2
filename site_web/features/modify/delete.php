@@ -17,5 +17,7 @@ $stmt = $conn->prepare("DELETE FROM $table WHERE id = :id");
 $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 $stmt->execute();
 
-header("Location: ../backend.php");
+$redirect = $_SERVER['HTTP_REFERER'] ?? '../../login.php';
+header("Location: $redirect");
+
 exit;

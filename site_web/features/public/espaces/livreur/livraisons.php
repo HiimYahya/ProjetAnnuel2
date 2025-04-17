@@ -4,7 +4,7 @@ include '../../../../fonctions/db.php';
 
 $conn = getConnexion();
 
-if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'client') {
+if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'livreur') {
     header('Location: ../../../../public/login.php');
     exit;
 }
@@ -15,6 +15,7 @@ if (!$id_annonce) {
     exit;
 }
 
+// Récupérer la livraison avec nom du livreur
 $stmt = $conn->prepare("
     SELECT l.*, u.nom AS nom_livreur
     FROM livraisons l

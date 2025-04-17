@@ -5,8 +5,9 @@ include '../../../../fonctions/fonctions.php';
 include '../../../../fonctions/icons.php';
 
 session_start();
+
 if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'client') {
-    header('Location: ../../auth/login.php');
+    header('Location: ../../../../public/login.php');
     exit;
 }
 
@@ -23,7 +24,7 @@ $conn = getConnexion();
     <link rel="stylesheet" href="features.css">
 </head>
 
-<?php include '../../../../fonctions/header_connected.php'; ?>
+<?php include '../../../../fonctions/header_client.php'; ?> 
 
 <body class="d-flex flex-column min-vh-100">
     <div class="container py-5">

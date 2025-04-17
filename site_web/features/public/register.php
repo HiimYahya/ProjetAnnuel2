@@ -1,6 +1,12 @@
 <?php
-include '../../fonctions/db.php';
+
+session_start();
+
+require_once '../../fonctions/db.php';
+
 $conn = getConnexion();
+
+$BASE_URL = '/site_web';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nom = $_POST['nom'];
@@ -8,38 +14,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $role = $_POST['role'];
     $mot_de_passe = password_hash($_POST['mot_de_passe'], PASSWORD_BCRYPT);
 
-    $stmt = $conn->prepare("INSERT INTO utilisateurs (nom, email, mot_de_passe, role) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$nom, $email, $mot_de_passe, $role]);
+    $stmt = $conn->prepare("SELECT id FROM utilisateurs WHERE email = ?");
+    $stmt->execute([$email]);
+    if ($stmt->fetch()) {
+        $error = "Un compte existe déjà avec cet email.";
+    } else {
 
-    session_start();
-    $_SESSION['utilisateur'] = [
-    'id' => $conn->lastInsertId(),
-    'nom' => $nom,
-    'email' => $email,
-    'role' => $role
-];
+        $stmt = $conn->prepare("INSERT INTO utilisateurs (nom, email, mot_de_passe, role) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$nom, $email, $mot_de_passe, $role]);
 
-// Redirection en fonction du rôle
-switch ($role) {
-    case 'client':
-        header("Location: ../public/espaces/client/index.php");
-        break;
-    case 'livreur':
-        header("Location: ../public/espaces/livreur/index.php");
-        break;
-    case 'commercant':
-        header("Location: ../public/espaces/commercant/index.php");
-        break;
-    case 'prestataire':
-        header("Location: ../public/espaces/prestataire/index.php");
-        break;
-    default:
-        header("Location: login.php");
-}
-exit;
+        $id = $conn->lastInsertId();
 
+        $_SESSION['utilisateur'] = [
+            'id' => $id,
+            'nom' => $nom,
+            'email' => $email,
+            'role' => $role
+        ];
+
+        header("Location: $BASE_URL/features/public/espaces/{$role}/index.php");
+        exit;
+    }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -78,10 +76,11 @@ exit;
         </div>
 
         <button class="btn btn-primary w-100">S'inscrire</button>
-        <a href="login.php" class="d-block text-center mt-3">Déjà un compte ? Connexion</a>
+        <a href="login.php" class="d-block text-center mt-3">Déjà un compte ?</a>
     </form>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <?php include '../../fonctions/darkmode.php'; ?>
+
 </body>
 </html>

@@ -1,5 +1,4 @@
 <?php
-
 require_once '../../../../fonctions/db.php';
 $conn = getConnexion();
 
@@ -15,7 +14,7 @@ $stmt->execute();
 $annonces = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 session_start();
-if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'livreur') {
+if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'client') {
     header('Location: ../../../../public/login.php');
     exit;
 }
@@ -40,7 +39,7 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'li
   </style>
 </head>
 
-<?php include '../../../../fonctions/header_livreur.php'; ?>
+<?php include '../../../../fonctions/header_client.php'; ?>
 
 <body class="d-flex flex-column min-vh-100">
 
@@ -77,15 +76,9 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'li
                   </small>
                 </p>
                 <a href="livraisons.php?id=<?= $annonce['id'] ?>" class="btn btn-sm btn-outline-primary">Suivi</a>
-                <form method="POST" action="accepter_annonce.php">
-                    <input type="hidden" name="id_annonce" value="<?= $annonce['id'] ?>">
-                <button type="submit" class="btn btn-success btn-sm">Accepter</button>
-            </form>
               </div>
             </div>
           </div>
-          
-
         <?php endforeach; ?>
       </div>
     </div>
@@ -94,5 +87,6 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'li
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../../../assets/js/darkmode.js"></script>
   <?php include '../../../../fonctions/footer.php'; ?>
+  
 </body>
 </html>

@@ -1,46 +1,36 @@
 <?php
+
 session_start();
-include '../fonctions/db.php';
+
+require_once '../../fonctions/db.php';
+
 $conn = getConnexion();
+
+define('BASE_URL', '/site_web');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT * FROM utilisateurs WHERE email = ?");
     $stmt->execute([$email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['user'] = [
+    if ($user && password_verify($password, $user['mot_de_passe'])) {
+        $_SESSION['utilisateur'] = [
             'id' => $user['id'],
+            'nom' => $user['nom'],
             'email' => $user['email'],
             'role' => $user['role']
         ];
 
-        // Redirection selon le rôle
-        switch ($user['role']) {
-            case 'client':
-                header('Location: ../espaces/client/index.php');
-                break;
-            case 'livreur':
-                header('Location: ../espaces/livreur/index.php');
-                break;
-            case 'commercant':
-                header('Location: ../espaces/commercant/index.php');
-                break;
-            case 'prestataire':
-                header('Location: ../espaces/prestataire/index.php');
-                break;
-            default:
-                header('Location: ../features/backend.php');
-                break;
-        }
+        header('Location: ' . BASE_URL . '/features/public/espaces/' . $user['role'] . '/index.php');
         exit;
     } else {
         $error = "Identifiants invalides";
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -55,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h2 class="mb-4">Connexion</h2>
 
         <?php if (!empty($error)): ?>
-            <div class="alert alert-danger"><?php echo $error; ?></div>
+            <div class="alert alert-danger"><?= $error ?></div>
         <?php endif; ?>
 
         <div class="mb-3">
@@ -69,7 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <button class="btn btn-primary w-100">Connexion</button>
-        <a href="register.php" class="d-block text-center mt-3">Créer un compte</a>
+
+        <!-- Lien vers l'inscription avec chemin absolu -->
+        <a href="<?= BASE_URL ?>/features/public/register.php" class="d-block text-center mt-3">Créer un compte</a>
     </form>
 </body>
 </html>
