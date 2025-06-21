@@ -208,30 +208,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Définir le titre de la page
-  switch(currentPage) {
-    case 'index':
-      pageTitle.textContent = 'Tableau de bord';
-      break;
-    case 'utilisateurs':
-      pageTitle.textContent = 'Gestion des utilisateurs';
-      break;
-    case 'annonces':
-      pageTitle.textContent = 'Gestion des annonces';
-      break;
-    case 'livraisons':
-      pageTitle.textContent = 'Gestion des livraisons';
-      break;
-    case 'paiements':
-      pageTitle.textContent = 'Gestion des paiements';
-      break;
-    case 'statistiques':
-      pageTitle.textContent = 'Statistiques';
-      break;
-    default:
-      pageTitle.textContent = 'Administration';
-  }
-  
   // Gestion du thème
   const themeToggle = document.getElementById('themeToggle');
   if (themeToggle) {

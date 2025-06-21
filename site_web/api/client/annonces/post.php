@@ -27,17 +27,17 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 $id_client = $_SESSION['utilisateur']['id'];
 $titre = $data['titre'] ?? null;
 $description = $data['description'] ?? null;
-$ville_depart = $data['adresse_depart'] ?? null;
-$ville_arrivee = $data['adresse_arrivee'] ?? null;
-$taille = $data['taille'] ?? null;
+$ville_depart = $data['ville_depart'] ?? null;
+$ville_arrivee = $data['ville_arrivee'] ?? null;
+$hauteur = $data['hauteur'] ?? null;
+$longueur = $data['longueur'] ?? null;
+$largeur = $data['largeur'] ?? null;
+$date_livraison_souhaitee = $data['date_livraison_souhaitee'] ?? null;
 $prix = $data['prix'] ?? null;
-$date_livraison = $data['date_livraison'] ?? null;
-$date_expiration = $data['date_expiration'] ?? null;
-$segmentation_possible = isset($data['segmentation_possible']) ? (int)$data['segmentation_possible'] : 1;
 $date_annonce = date('Y-m-d');
 
 // Champs obligatoires
-if (!$titre || !$description || !$ville_depart || !$ville_arrivee) {
+if (!$titre || !$description || !$ville_depart || !$ville_arrivee || !$hauteur || !$longueur || !$largeur || !$date_livraison_souhaitee || !$prix) {
   echo json_encode(['success' => false, 'message' => 'Champs obligatoires manquants']);
   exit;
 }
@@ -47,12 +47,12 @@ require_once __DIR__ . '/../../../fonctions/db.php';
 $pdo = getConnexion();
 
 try {
-  $stmt = $pdo->prepare("INSERT INTO annonces (id_client, titre, description, ville_depart, ville_arrivee, date_annonce, statut, taille, prix, date_livraison_souhaitee, date_expiration, segmentation_possible)
+  $stmt = $pdo->prepare("INSERT INTO annonces (id_client, titre, description, ville_depart, ville_arrivee, date_annonce, statut, hauteur, longueur, largeur, date_livraison_souhaitee, prix)
     VALUES (?, ?, ?, ?, ?, ?, 'en attente', ?, ?, ?, ?, ?)");
 
   $ok = $stmt->execute([
     $id_client, $titre, $description, $ville_depart, $ville_arrivee,
-    $date_annonce, $taille, $prix, $date_livraison, $date_expiration, $segmentation_possible
+    $date_annonce, $hauteur, $longueur, $largeur, $date_livraison_souhaitee, $prix
   ]);
 
   echo json_encode(['success' => $ok]);

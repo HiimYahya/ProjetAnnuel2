@@ -1,0 +1,41 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Rule Name: Uploads - Gestion des fichiers téléchargés
+Description: Règles et conventions pour la gestion et l'organisation des fichiers téléchargés par les utilisateurs dans le dossier uploads du projet EcoDeli.
+
+## Structure du dossier uploads
+
+- Stockage organisé des fichiers téléchargés par les utilisateurs
+- Les fichiers sont nommés avec un préfixe indiquant le type et un identifiant unique
+  - photo_[hash unique].jpg: Photos de profil ou d'identité
+  - document_[hash unique].pdf: Documents officiels
+  - preuve_[hash unique].[extension]: Justificatifs
+
+## Conventions de nommage
+
+1. Format des noms de fichiers: `[type]_[timestamp/hash].[extension]`
+2. Utiliser uniqid() ou une fonction similaire pour générer des identifiants uniques
+3. Ne pas conserver les noms originaux des fichiers pour des raisons de sécurité
+
+## Sécurité et validation
+
+1. Vérifier le type MIME réel des fichiers avant de les accepter
+2. Limiter les tailles de fichiers (max 10MB par défaut)
+3. N'accepter que les formats autorisés (.jpg, .png, .pdf)
+4. Valider que les images sont bien des images (getimagesize())
+
+## Accès aux fichiers
+
+1. Ne jamais autoriser l'accès direct aux fichiers sensibles
+2. Passer par un script PHP pour contrôler l'accès aux fichiers privés
+3. Implémenter un contrôle d'accès basé sur le rôle de l'utilisateur
+
+## Bonnes pratiques
+
+1. Nettoyer périodiquement les fichiers temporaires et orphelins
+2. Implémenter un système de versionning pour les documents importants
+3. Effectuer des sauvegardes régulières du dossier uploads
+4. Optimiser les images avant stockage (redimensionnement, compression)

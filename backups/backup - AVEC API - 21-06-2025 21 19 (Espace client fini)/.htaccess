@@ -1,0 +1,4 @@
+# API RESTful routing
+RewriteEngine On
+RewriteRule ^api/([a-zA-Z0-9_]+)/([a-zA-Z0-9_]+)/([a-zA-Z0-9_]+)\.php$ api/$1/$2/$3.php [L]
+RewriteRule ^api/([a-zA-Z0-9_]+)/([a-zA-Z0-9_]+)/?$ api/$1/$2/get.php [L] 

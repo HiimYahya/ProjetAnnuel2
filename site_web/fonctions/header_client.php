@@ -32,13 +32,13 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'cl
           <li class="nav-item">
             <a class="nav-link" href="/site_web/features/public/espaces/client/annonces.php">
               <svg class="bi" width="16" height="16"><use xlink:href="#megaphone"/></svg>
-              Mes Annonces
+              Créer une annonce
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/site_web/features/public/espaces/client/list_annonces.php">
               <svg class="bi" width="16" height="16"><use xlink:href="#list-check"/></svg>
-              Liste des Annonces
+              Mes Annonces
             </a>
           </li>
         </ul>

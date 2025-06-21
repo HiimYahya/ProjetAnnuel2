@@ -107,7 +107,6 @@ $stats['top_villes'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="utf-8">
     <title>Statistiques - EcoDeli Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="../../assets/js/color-modes.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 

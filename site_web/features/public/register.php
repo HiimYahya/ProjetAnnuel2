@@ -2,48 +2,7 @@
 
 session_start();
 
-require_once '../../fonctions/db.php';
-
-$conn = getConnexion();
-
 $BASE_URL = '/site_web';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nom = $_POST['nom'];
-    $email = $_POST['email'];
-    $role = $_POST['role'];
-    $mot_de_passe = password_hash($_POST['mot_de_passe'], PASSWORD_BCRYPT);
-
-    $stmt = $conn->prepare("SELECT id FROM utilisateurs WHERE email = ?");
-    $stmt->execute([$email]);
-    if ($stmt->fetch()) {
-        $error = "Un compte existe déjà avec cet email.";
-    } else {
-        // Si l'utilisateur est un livreur, le statut de validation est initialement 'en_attente'
-        $validation_identite = ($role === 'livreur') ? 'en_attente' : NULL;
-        
-        $stmt = $conn->prepare("INSERT INTO utilisateurs (nom, email, mot_de_passe, role, validation_identite) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$nom, $email, $mot_de_passe, $role, $validation_identite]);
-
-        $id = $conn->lastInsertId();
-
-        $_SESSION['utilisateur'] = [
-            'id' => $id,
-            'nom' => $nom,
-            'email' => $email,
-            'role' => $role,
-            'validation_identite' => $validation_identite
-        ];
-
-        // Si c'est un livreur, rediriger vers la page de téléchargement d'identité
-        if ($role === 'livreur') {
-            header("Location: $BASE_URL/features/public/upload_identite.php");
-        } else {
-            header("Location: $BASE_URL/features/public/espaces/{$role}/index.php");
-        }
-        exit;
-    }
-}
 
 ?>
 
@@ -55,28 +14,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="d-flex justify-content-center align-items-center vh-100 bg-light">
-    <form class="p-4 bg-white rounded shadow" method="POST">
+    <form class="p-4 bg-white rounded shadow" id="register-form">
         <h2 class="mb-4">Créer un compte</h2>
-
-        <?php if (!empty($error)): ?>
-            <div class="alert alert-danger"><?= $error ?></div>
-        <?php endif; ?>
-
+        <div id="register-error"></div>
         <div class="mb-3">
             <label for="nom" class="form-label">Nom</label>
             <input type="text" name="nom" required class="form-control">
         </div>
-
         <div class="mb-3">
             <label for="email" class="form-label">Adresse Email</label>
             <input type="email" name="email" required class="form-control">
         </div>
-
         <div class="mb-3">
             <label for="mot_de_passe" class="form-label">Mot de passe</label>
             <input type="password" name="mot_de_passe" required class="form-control">
         </div>
-
         <div class="mb-3">
             <label for="role" class="form-label">Rôle</label>
             <select name="role" class="form-select" required>
@@ -86,13 +38,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <option value="prestataire">Prestataire</option>
             </select>
         </div>
-
-        <button class="btn btn-primary w-100">S'inscrire</button>
+        <button class="btn btn-primary w-100" type="submit">S'inscrire</button>
         <a href="login.php" class="d-block text-center mt-3">Déjà un compte ?</a>
     </form>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.getElementById('register-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const nom = this.nom.value;
+        const email = this.email.value;
+        const mot_de_passe = this.mot_de_passe.value;
+        const role = this.role.value;
+        fetch('/site_web/api/public/auth/register.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nom, email, mot_de_passe, role })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                // Envoyer les infos utilisateur à register_session.php pour set la session
+                fetch('/site_web/features/public/register_session.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(res.user)
+                })
+                .then(() => {
+                    if (res.user.role === 'livreur') {
+                        window.location.href = '/site_web/features/public/upload_identite.php';
+                    } else {
+                        window.location.href = '/site_web/features/public/espaces/' + res.user.role + '/index.php';
+                    }
+                });
+            } else {
+                document.getElementById('register-error').innerHTML = '<div class="alert alert-danger">' + res.message + '</div>';
+            }
+        })
+        .catch(e => {
+            document.getElementById('register-error').innerHTML = '<div class="alert alert-danger">Erreur JS : ' + e + '</div>';
+        });
+    });
+    </script>
     <?php include '../../fonctions/darkmode.php'; ?>
-
 </body>
 </html>

@@ -61,7 +61,6 @@ $methodeOptions = getDistinctValues($conn, $table, 'methode');
     <title>Modifier - <?php echo htmlspecialchars($table); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/style.css">
-    <script src="../../assets/js/color-modes.js"></script>
 </head>
 <body class="d-flex flex-column min-vh-100">
 <?php include '../../fonctions/header.php'; ?>
