@@ -1,6 +1,5 @@
 <?php
 session_start();
-include '../../fonctions/db.php'; 
 include '../../fonctions/fonctions.php';
 
 // Vérification de l'authentification admin
@@ -8,96 +7,6 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'ad
     header('Location: /site_web/features/public/login.php');
     exit;
 }
-
-$conn = getConnexion();
-
-// Recherche et filtrage
-$search = $_GET['search'] ?? '';
-$statut_filter = $_GET['statut'] ?? '';
-
-$where_conditions = [];
-$params = [];
-
-if (!empty($search)) {
-    $where_conditions[] = "(titre LIKE ? OR ville_depart LIKE ? OR ville_arrivee LIKE ?)";
-    $search_param = "%$search%";
-    $params[] = $search_param;
-    $params[] = $search_param;
-    $params[] = $search_param;
-}
-
-if (!empty($statut_filter)) {
-    $where_conditions[] = "statut = ?";
-    $params[] = $statut_filter;
-}
-
-$where_clause = !empty($where_conditions) ? "WHERE " . implode(" AND ", $where_conditions) : "";
-
-// Récupération des annonces
-$stmt = $conn->prepare("SELECT a.*, u.nom as auteur_nom FROM annonces a 
-                      LEFT JOIN utilisateurs u ON a.id_client = u.id 
-                      $where_clause
-                      ORDER BY a.date_annonce DESC");
-$stmt->execute($params);
-$annonces = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Traitement du formulaire d'ajout/modification
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    if ($_POST['action'] === 'add' || $_POST['action'] === 'edit') {
-        $titre = trim($_POST['titre']);
-        $description = trim($_POST['description']);
-        $ville_depart = trim($_POST['ville_depart']);
-        $ville_arrivee = trim($_POST['ville_arrivee']);
-        $taille = $_POST['taille'] ?? 0;
-        $prix = $_POST['prix'] ?? 0;
-        $date_livraison = $_POST['date_livraison'] ?? null;
-        $date_expiration = $_POST['date_expiration'] ?? null;
-        $segmentation_possible = isset($_POST['segmentation_possible']) ? 1 : 0;
-        $statut = trim($_POST['statut']);
-        $id_client = $_POST['id_client'] ?? $_SESSION['utilisateur']['id'];
-        
-        // Validation
-        $errors = [];
-        if (empty($titre)) $errors[] = "Le titre est obligatoire";
-        if (empty($description)) $errors[] = "La description est obligatoire";
-        if (empty($ville_depart)) $errors[] = "L'adresse de départ est obligatoire";
-        if (empty($ville_arrivee)) $errors[] = "L'adresse d'arrivée est obligatoire";
-        
-        if (empty($errors)) {
-            if ($_POST['action'] === 'add') {
-                $stmt = $conn->prepare("INSERT INTO annonces 
-                    (id_client, titre, description, ville_depart, ville_arrivee, taille, prix, 
-                     date_livraison_souhaitee, date_expiration, date_annonce, statut, segmentation_possible) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?)");
-                $stmt->execute([$id_client, $titre, $description, $ville_depart, $ville_arrivee, 
-                               $taille, $prix, $date_livraison, $date_expiration, $statut, $segmentation_possible]);
-                $_SESSION['message'] = "Annonce ajoutée avec succès";
-            } else {
-                $id = $_POST['id'];
-                $stmt = $conn->prepare("UPDATE annonces SET 
-                    titre = ?, description = ?, ville_depart = ?, ville_arrivee = ?, 
-                    taille = ?, prix = ?, date_livraison_souhaitee = ?, date_expiration = ?, 
-                    statut = ?, segmentation_possible = ? 
-                    WHERE id = ?");
-                $stmt->execute([$titre, $description, $ville_depart, $ville_arrivee, $taille, $prix, 
-                               $date_livraison, $date_expiration, $statut, $segmentation_possible, $id]);
-                $_SESSION['message'] = "Annonce mise à jour avec succès";
-            }
-            header('Location: annonces.php');
-            exit;
-        }
-    } elseif ($_POST['action'] === 'delete' && isset($_POST['id'])) {
-        $stmt = $conn->prepare("DELETE FROM annonces WHERE id = ?");
-        $stmt->execute([$_POST['id']]);
-        $_SESSION['message'] = "Annonce supprimée avec succès";
-        header('Location: annonces.php');
-        exit;
-    }
-}
-
-// Récupération des utilisateurs pour le formulaire
-$stmt = $conn->query("SELECT id, nom, email FROM utilisateurs ORDER BY nom");
-$utilisateurs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!doctype html>
@@ -108,117 +17,18 @@ $utilisateurs = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>Gestion des annonces - EcoDeli</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../../assets/dist/admin.css">
+    <link rel="stylesheet" href="/site_web/assets/dist/admin.css">
     <style>
-        /* Fix pour les modales */
-        .modal {
-            z-index: 10000 !important;
-        }
-        
-        /* Style général */
-        body {
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
-        }
-        
-        .container-fluid {
-            padding: 0;
-            max-width: 100%;
-        }
-        
-        /* Style pour les boutons d'action */
-        .btn-primary {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-            border-radius: 4px;
-        }
-        
-        .btn-danger {
-            background-color: #dc3545;
-            border-color: #dc3545;
-            border-radius: 4px;
-        }
-        
-        /* Layout de la page */
-        .page-title {
-            text-align: center;
-            margin: 40px 0 20px;
-        }
-        
-        .page-title h1 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .page-content {
-            max-width: 1000px;
-            margin: 0 auto;
-            position: relative;
-        }
-        
-        .add-button {
-            position: absolute;
-            top: -60px;
-            right: 0;
-        }
-        
-        /* Style pour les cartes */
-        .card {
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-            background-color: white;
-            border: 1px solid rgba(0,0,0,.125);
-        }
-        
-        /* Style pour la recherche */
-        .search-card .card-body {
-            padding: 15px;
-        }
-        
-        .search-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .search-input {
-            flex: 3;
-        }
-        
-        .search-select {
-            flex: 2;
-        }
-        
-        .search-button {
-            flex: 1;
-        }
-        
-        /* Style pour le tableau */
-        .table {
-            margin-bottom: 0;
-        }
-        
-        .table th {
-            background-color: #f8f9fa;
-            font-weight: 500;
-            border-top: none;
-            border-bottom: 1px solid #dee2e6;
-            color: #333;
-            padding: 12px 8px;
-        }
-        
-        .table td {
-            border: none;
-            padding: 12px 8px;
-            vertical-align: middle;
-        }
-        
-        .table tbody tr:nth-child(odd) {
-            background-color: rgba(0, 0, 0, 0.02);
-        }
+        .modal { z-index: 1055 !important; }
+        .modal-backdrop { z-index: 1050 !important; }
+        body { background-color: #f8f9fa; }
+        .page-title { text-align: center; margin: 40px 0 20px; }
+        .page-title h1 { font-size: 1.75rem; font-weight: 600; }
+        .page-content { max-width: 1200px; margin: 0 auto; }
+        .add-button-container { text-align: right; margin-bottom: 20px; }
+        .card { border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.05); }
+        .table th { background-color: #f8f9fa; }
+        .alert-container { position: fixed; top: 20px; right: 20px; z-index: 1100; min-width: 300px; }
     </style>
 </head>
 
@@ -231,49 +41,37 @@ $utilisateurs = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
         
         <div class="page-content">
-            <div class="add-button">
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addAnnonceModal" style="position: relative; z-index: 100; pointer-events: auto; border-radius: 4px; padding: 8px 16px; font-weight: 500;">
-                    Ajouter une annonce
+            <div id="alert-container"></div>
+            
+            <div class="add-button-container">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addAnnonceModal">
+                    <i class="fas fa-plus me-2"></i>Ajouter une annonce
                 </button>
             </div>
-            
-            <?php if (isset($_SESSION['message'])): ?>
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <?php 
-                    echo $_SESSION['message']; 
-                    unset($_SESSION['message']);
-                    ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            <?php endif; ?>
-
-            <?php if (isset($errors) && !empty($errors)): ?>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <ul class="mb-0">
-                        <?php foreach ($errors as $error): ?>
-                            <li><?php echo $error; ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            <?php endif; ?>
             
             <!-- Filtres de recherche -->
             <div class="card search-card mb-4">
                 <div class="card-body">
-                    <form method="get">
-                        <div class="search-row">
-                            <div class="search-input">
-                                <input type="text" class="form-control" placeholder="Rechercher par titre ou adresse" name="search" value="<?php echo htmlspecialchars($search ?? ''); ?>">
+                    <form id="search-form" class="row g-3 align-items-center">
+                        <div class="col">
+                            <input type="text" class="form-control" placeholder="Rechercher par titre ou ville..." name="search" id="search-input">
+                        </div>
+                        <div class="col-md-3">
+                             <select class="form-select" id="statut-filter">
+                                <option value="">Tous les statuts</option>
+                                <option value="disponible">Disponible</option>
+                                <option value="prise en charge">Prise en charge</option>
+                                <option value="livrée">Livrée</option>
+                                <option value="annulée">Annulée</option>
+                            </select>
                             </div>
-                            <div class="search-button">
+                        <div class="col-auto">
                                 <button class="btn btn-outline-primary w-100" type="submit">
-                                    Rechercher
+                                <i class="fas fa-search"></i> Rechercher
                                 </button>
                             </div>
-                            <div class="search-button">
-                                <a href="annonces.php" class="btn btn-outline-secondary w-100" style="position: relative; z-index: 100; pointer-events: auto;">Réinitialiser</a>
-                            </div>
+                        <div class="col-auto">
+                            <button type="button" id="reset-search" class="btn btn-outline-secondary w-100">Réinitialiser</button>
                         </div>
                     </form>
                 </div>
@@ -282,7 +80,7 @@ $utilisateurs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table table-hover">
                             <thead>
                                 <tr>
                                     <th>ID</th>
@@ -291,188 +89,130 @@ $utilisateurs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <th>Arrivée</th>
                                     <th>Prix</th>
                                     <th>Auteur</th>
-                                    <th>Date</th>
+                                    <th>Publiée le</th>
                                     <th>Statut</th>
-                                    <th>Actions</th>
+                                    <th class="text-end">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <?php if (empty($annonces)): ?>
-                                    <tr>
-                                        <td colspan="9" class="text-center">Aucune annonce trouvée</td>
-                                    </tr>
-                                <?php else: ?>
-                                    <?php foreach ($annonces as $annonce): ?>
-                                        <tr>
-                                            <td><?php echo $annonce['id']; ?></td>
-                                            <td><?php echo htmlspecialchars($annonce['titre']); ?></td>
-                                            <td><?php echo htmlspecialchars($annonce['ville_depart']); ?></td>
-                                            <td><?php echo htmlspecialchars($annonce['ville_arrivee']); ?></td>
-                                            <td><?php echo number_format($annonce['prix'], 2, ',', ' '); ?> €</td>
-                                            <td><?php echo htmlspecialchars($annonce['auteur_nom'] ?? 'Inconnu'); ?></td>
-                                            <td><?php echo date('d/m/Y', strtotime($annonce['date_annonce'])); ?></td>
-                                            <td>
-                                                <?php
-                                                    $statut = strtolower($annonce['statut']);
-                                                    $couleur = match($statut) {
-                                                        'livrée' => '🟢',
-                                                        'en attente', 'prise en charge' => '🟠',
-                                                        'annulée' => '🔴',
-                                                        default => '⚪',
-                                                    };
-                                                    echo $couleur . ' ' . htmlspecialchars($annonce['statut']);
-                                                ?>
-                                            </td>
-                                            <td>
-                                                <button type="button" class="btn btn-primary btn-sm" 
-                                                        data-bs-toggle="modal" 
-                                                        data-bs-target="#editAnnonceModal"
-                                                        data-id="<?php echo $annonce['id']; ?>"
-                                                        data-titre="<?php echo htmlspecialchars($annonce['titre']); ?>"
-                                                        data-description="<?php echo htmlspecialchars($annonce['description']); ?>"
-                                                        data-ville_depart="<?php echo htmlspecialchars($annonce['ville_depart']); ?>"
-                                                        data-ville_arrivee="<?php echo htmlspecialchars($annonce['ville_arrivee']); ?>"
-                                                        data-taille="<?php echo $annonce['taille']; ?>"
-                                                        data-prix="<?php echo $annonce['prix']; ?>"
-                                                        data-date_livraison="<?php echo $annonce['date_livraison_souhaitee']; ?>"
-                                                        data-date_expiration="<?php echo $annonce['date_expiration']; ?>"
-                                                        data-segmentation_possible="<?php echo $annonce['segmentation_possible']; ?>"
-                                                        data-statut="<?php echo htmlspecialchars($annonce['statut']); ?>"
-                                                        style="position: relative; z-index: 100; pointer-events: auto; margin-bottom: 4px; width: 100%; padding: 6px 12px;">
-                                                    Modifier
-                                                </button>
-                                                <button type="button" class="btn btn-danger btn-sm delete-confirm"
-                                                        data-bs-toggle="modal" 
-                                                        data-bs-target="#deleteAnnonceModal"
-                                                        data-id="<?php echo $annonce['id']; ?>"
-                                                        data-titre="<?php echo htmlspecialchars($annonce['titre']); ?>"
-                                                        style="position: relative; z-index: 100; pointer-events: auto; width: 100%; padding: 6px 12px;">
-                                                    Supprimer
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
+                            <tbody id="annonces-table-body">
+                                <!-- Le contenu sera chargé par JavaScript -->
                             </tbody>
                         </table>
                     </div>
+                     <!-- Pagination -->
+                    <nav aria-label="Pagination des annonces">
+                        <ul class="pagination justify-content-center mt-4" id="pagination-container"></ul>
+                    </nav>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modals -->
     <!-- Modal d'ajout d'annonce -->
-    <div class="modal fade" id="addAnnonceModal" tabindex="-1" aria-labelledby="addAnnonceModalLabel" aria-hidden="true" data-bs-backdrop="static" style="z-index: 10000;">
-        <div class="modal-dialog modal-lg" style="z-index: 10001;">
-            <div class="modal-content" style="pointer-events: auto;">
+    <div class="modal fade" id="addAnnonceModal" tabindex="-1" aria-labelledby="addAnnonceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Ajouter une annonce</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <form id="add-annonce-form">
                 <div class="modal-body">
-                    <form action="annonces.php" method="post">
-                        <input type="hidden" name="action" value="add">
+                        <div id="add-alert-container"></div>
                         
                         <div class="mb-3">
-                            <label for="titre" class="form-label">Titre</label>
-                            <input type="text" class="form-control" id="titre" name="titre" required>
+                            <label for="add-titre" class="form-label">Titre</label>
+                            <input type="text" class="form-control" id="add-titre" name="titre" required>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                            <label for="add-description" class="form-label">Description</label>
+                            <textarea class="form-control" id="add-description" name="description" rows="3" required></textarea>
                         </div>
                         
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="ville_depart" class="form-label">Ville de départ</label>
-                                    <input type="text" class="form-control" id="ville_depart" name="ville_depart" required>
+                            <div class="col-md-6 mb-3">
+                                <label for="add-ville_depart" class="form-label">Ville de départ</label>
+                                <input type="text" class="form-control" id="add-ville_depart" name="ville_depart" required>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="ville_arrivee" class="form-label">Ville d'arrivée</label>
-                                    <input type="text" class="form-control" id="ville_arrivee" name="ville_arrivee" required>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="add-ville_arrivee" class="form-label">Ville d'arrivée</label>
+                                <input type="text" class="form-control" id="add-ville_arrivee" name="ville_arrivee" required>
                             </div>
                         </div>
                         
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="taille" class="form-label">Taille</label>
-                                    <input type="number" class="form-control" id="taille" name="taille" required>
+                            <div class="col-md-6 mb-3">
+                                <label for="add-taille" class="form-label">Taille (Volume m³)</label>
+                                <input type="number" class="form-control" id="add-taille" name="taille" step="0.01" required>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="prix" class="form-label">Prix</label>
-                                    <input type="number" class="form-control" id="prix" name="prix" required>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="add-prix" class="form-label">Prix (€)</label>
+                                <input type="number" class="form-control" id="add-prix" name="prix" step="0.01" required>
                             </div>
                         </div>
                         
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="date_livraison" class="form-label">Date de livraison souhaitée</label>
-                                    <input type="date" class="form-control" id="date_livraison" name="date_livraison">
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="add-date_livraison" class="form-label">Date de livraison souhaitée</label>
+                                <input type="date" class="form-control" id="add-date_livraison" name="date_livraison">
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="date_expiration" class="form-label">Date d'expiration</label>
-                                    <input type="date" class="form-control" id="date_expiration" name="date_expiration">
+                            <div class="col-md-6 mb-3">
+                                <label for="add-date_expiration" class="form-label">Date d'expiration de l'annonce</label>
+                                <input type="date" class="form-control" id="add-date_expiration" name="date_expiration">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                             <div class="col-md-6 mb-3">
+                                <label for="add-statut" class="form-label">Statut</label>
+                                <select class="form-select" id="add-statut" name="statut" required>
+                                    <option value="disponible" selected>Disponible</option>
+                                    <option value="prise en charge">Prise en charge</option>
+                                    <option value="livrée">Livrée</option>
+                                    <option value="annulée">Annulée</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3 d-flex align-items-end">
+                                 <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="add-segmentation_possible" name="segmentation_possible" value="1">
+                                    <label class="form-check-label" for="add-segmentation_possible">
+                                        Segmentation possible
+                                    </label>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="segmentation_possible" class="form-label">Segmentation possible</label>
-                            <input type="checkbox" class="form-check-input" id="segmentation_possible" name="segmentation_possible">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="statut" class="form-label">Statut</label>
-                            <select class="form-select" id="statut" name="statut">
-                                <option value="actif">Actif</option>
-                                <option value="inactif">Inactif</option>
-                                <option value="en attente">En attente</option>
+                            <label for="add-id_client" class="form-label">Auteur de l'annonce</label>
+                            <select class="form-select" id="add-id_client" name="id_client" required>
+                                <!-- Les utilisateurs seront chargés ici par JS -->
                             </select>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="id_client" class="form-label">Auteur</label>
-                            <select class="form-select" id="id_client" name="id_client">
-                                <?php foreach ($utilisateurs as $utilisateur): ?>
-                                    <option value="<?php echo $utilisateur['id']; ?>"><?php echo htmlspecialchars($utilisateur['nom'] . ' (' . $utilisateur['email'] . ')'); ?></option>
-                                <?php endforeach; ?>
-                            </select>
                         </div>
-                        
-                        <div class="text-end">
+                    <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn btn-primary">Ajouter</button>
+                        <button type="submit" class="btn btn-primary">Ajouter l'annonce</button>
                         </div>
                     </form>
-                </div>
             </div>
         </div>
     </div>
 
     <!-- Modal de modification d'annonce -->
-    <div class="modal fade" id="editAnnonceModal" tabindex="-1" aria-labelledby="editAnnonceModalLabel" aria-hidden="true" data-bs-backdrop="static" style="z-index: 10000;">
-        <div class="modal-dialog modal-lg" style="z-index: 10001;">
-            <div class="modal-content" style="pointer-events: auto;">
+    <div class="modal fade" id="editAnnonceModal" tabindex="-1" aria-labelledby="editAnnonceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Modifier l'annonce</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <form id="edit-annonce-form">
                 <div class="modal-body">
-                    <form action="annonces.php" method="post">
-                        <input type="hidden" name="action" value="edit">
-                        <input type="hidden" name="id" id="edit-id">
+                        <div id="edit-alert-container"></div>
+                        <input type="hidden" id="edit-id" name="id">
                         
                         <div class="mb-3">
                             <label for="edit-titre" class="form-label">Titre</label>
@@ -481,189 +221,354 @@ $utilisateurs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         
                         <div class="mb-3">
                             <label for="edit-description" class="form-label">Description</label>
-                            <textarea class="form-control" id="edit-description" name="description" rows="4" required></textarea>
+                            <textarea class="form-control" id="edit-description" name="description" rows="3" required></textarea>
                         </div>
                         
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                            <div class="col-md-6 mb-3">
                                     <label for="edit-ville_depart" class="form-label">Ville de départ</label>
                                     <input type="text" class="form-control" id="edit-ville_depart" name="ville_depart" required>
-                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                            <div class="col-md-6 mb-3">
                                     <label for="edit-ville_arrivee" class="form-label">Ville d'arrivée</label>
                                     <input type="text" class="form-control" id="edit-ville_arrivee" name="ville_arrivee" required>
-                                </div>
                             </div>
                         </div>
                         
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="edit-taille" class="form-label">Taille</label>
-                                    <input type="number" class="form-control" id="edit-taille" name="taille" required>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="edit-taille" class="form-label">Taille (Volume m³)</label>
+                                <input type="number" class="form-control" id="edit-taille" name="taille" step="0.01" required>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="edit-prix" class="form-label">Prix</label>
-                                    <input type="number" class="form-control" id="edit-prix" name="prix" required>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="edit-prix" class="form-label">Prix (€)</label>
+                                <input type="number" class="form-control" id="edit-prix" name="prix" step="0.01" required>
                             </div>
                         </div>
                         
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="edit-date_livraison" class="form-label">Date de livraison souhaitée</label>
-                                    <input type="date" class="form-control" id="edit-date_livraison" name="date_livraison">
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="edit-date_livraison_souhaitee" class="form-label">Date de livraison souhaitée</label>
+                                <input type="date" class="form-control" id="edit-date_livraison_souhaitee" name="date_livraison_souhaitee">
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                            <div class="col-md-6 mb-3">
                                     <label for="edit-date_expiration" class="form-label">Date d'expiration</label>
                                     <input type="date" class="form-control" id="edit-date_expiration" name="date_expiration">
+                            </div>
+                        </div>
+                        
+                         <div class="row">
+                             <div class="col-md-6 mb-3">
+                                <label for="edit-statut" class="form-label">Statut</label>
+                                <select class="form-select" id="edit-statut" name="statut" required>
+                                    <option value="disponible">Disponible</option>
+                                    <option value="prise en charge">Prise en charge</option>
+                                    <option value="livrée">Livrée</option>
+                                    <option value="annulée">Annulée</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3 d-flex align-items-end">
+                                 <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="edit-segmentation_possible" name="segmentation_possible" value="1">
+                                    <label class="form-check-label" for="edit-segmentation_possible">
+                                        Segmentation possible
+                                    </label>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="edit-segmentation_possible" class="form-label">Segmentation possible</label>
-                            <input type="checkbox" class="form-check-input" id="edit-segmentation_possible" name="segmentation_possible">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="edit-statut" class="form-label">Statut</label>
-                            <select class="form-select" id="edit-statut" name="statut">
-                                <option value="actif">Actif</option>
-                                <option value="inactif">Inactif</option>
-                                <option value="en attente">En attente</option>
+                            <label for="edit-id_client" class="form-label">Auteur de l'annonce</label>
+                            <select class="form-select" id="edit-id_client" name="id_client" required>
+                                <!-- Les utilisateurs seront chargés ici par JS -->
                             </select>
                         </div>
                         
-                        <div class="text-end">
+                    </div>
+                    <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
                         </div>
                     </form>
-                </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal de suppression d'annonce -->
-    <div class="modal fade" id="deleteAnnonceModal" tabindex="-1" aria-labelledby="deleteAnnonceModalLabel" aria-hidden="true" data-bs-backdrop="static" style="z-index: 10000;">
-        <div class="modal-dialog" style="z-index: 10001;">
-            <div class="modal-content" style="pointer-events: auto;">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirmer la suppression</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Êtes-vous sûr de vouloir supprimer l'annonce "<span id="delete-titre"></span>" ?</p>
-                    <form action="annonces.php" method="post">
-                        <input type="hidden" name="action" value="delete">
-                        <input type="hidden" name="id" id="delete-id">
-                        
-                        <div class="text-end">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn btn-danger">Supprimer</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-    <script src="../../assets/dist/admin.js"></script>
+    <script src="/site_web/assets/js/darkmode.js"></script>
     <script>
-        // Gestion des modals pour éditer et supprimer
         document.addEventListener('DOMContentLoaded', function() {
-            // Réinitialiser Bootstrap et ses modales
-            if (typeof bootstrap !== 'undefined') {
-                // Réinitialiser toutes les modales existantes
-                document.querySelectorAll('.modal').forEach(modalEl => {
-                    // Supprimer d'abord toute instance existante
-                    const oldModal = bootstrap.Modal.getInstance(modalEl);
-                    if (oldModal) oldModal.dispose();
-                    
-                    // Créer une nouvelle instance de modal
-                    const newModal = new bootstrap.Modal(modalEl, {
-                        backdrop: 'static',
-                        keyboard: false,
-                        focus: true
-                    });
-                    
-                    // Assurer que la modale est au premier plan quand elle s'ouvre
-                    modalEl.addEventListener('shown.bs.modal', function() {
-                        modalEl.style.zIndex = '10000';
-                        document.querySelector('.modal-backdrop').style.zIndex = '9999';
-                    });
+            const API_URL_ANNONCES = '/site_web/api/admin/annonces/';
+            const API_URL_USERS = '/site_web/api/admin/utilisateurs/';
+
+            // --- Éléments du DOM ---
+            const tableBody = document.getElementById('annonces-table-body');
+            const paginationContainer = document.getElementById('pagination-container');
+            const searchForm = document.getElementById('search-form');
+            const searchInput = document.getElementById('search-input');
+            const statutFilter = document.getElementById('statut-filter');
+            const resetSearchBtn = document.getElementById('reset-search');
+
+            // Modale d'ajout
+            const addAnnonceModalEl = document.getElementById('addAnnonceModal');
+            const addAnnonceForm = document.getElementById('add-annonce-form');
+            const addAnnonceModal = new bootstrap.Modal(addAnnonceModalEl);
+            const userSelectAdd = document.getElementById('add-id_client');
+
+            // Modale de modification
+            const editAnnonceModalEl = document.getElementById('editAnnonceModal');
+            const editAnnonceForm = document.getElementById('edit-annonce-form');
+            const editAnnonceModal = new bootstrap.Modal(editAnnonceModalEl);
+            const userSelectEdit = document.getElementById('edit-id_client');
+
+
+            let currentPage = 1;
+            let currentSearch = '';
+            let currentStatut = '';
+
+            // --- Fonctions Utilitaires ---
+            const showAlert = (message, type = 'success', container = 'alert-container', duration = 5000) => {
+                const alertContainer = document.getElementById(container);
+                if (!alertContainer) return;
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type} alert-dismissible fade show`;
+                alert.role = 'alert';
+                alert.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+                alertContainer.prepend(alert);
+                setTimeout(() => new bootstrap.Alert(alert).close(), duration);
+            };
+
+            const getStatutBadge = (statut) => {
+                const badges = {
+                    'disponible': { bg: 'success', text: 'Disponible' },
+                    'prise en charge': { bg: 'warning', text: 'Prise en charge' },
+                    'livrée': { bg: 'primary', text: 'Livrée' },
+                    'annulée': { bg: 'danger', text: 'Annulée' },
+                };
+                const badge = badges[statut] || { bg: 'secondary', text: 'Inconnu' };
+                return `<span class="badge bg-${badge.bg}">${badge.text}</span>`;
+            };
+
+            const formatDate = (dateString) => {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            // --- Fonctions de Rendu ---
+            const renderTable = (annonces) => {
+                tableBody.innerHTML = '';
+                if (!annonces || annonces.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="9" class="text-center">Aucune annonce trouvée.</td></tr>';
+                    return;
+                }
+                annonces.forEach(annonce => {
+                    const tr = document.createElement('tr');
+                    tr.dataset.annonceId = annonce.id;
+                    tr.innerHTML = `
+                        <td>${annonce.id}</td>
+                        <td>${annonce.titre}</td>
+                        <td>${annonce.ville_depart}</td>
+                        <td>${annonce.ville_arrivee}</td>
+                        <td>${parseFloat(annonce.prix).toFixed(2)} €</td>
+                        <td>${annonce.auteur_nom || 'N/A'}</td>
+                        <td>${new Date(annonce.date_annonce).toLocaleDateString('fr-FR')}</td>
+                        <td>${getStatutBadge(annonce.statut)}</td>
+                        <td class="text-end">
+                            <button class="btn btn-primary btn-sm btn-edit" data-annonce='${JSON.stringify(annonce)}'><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger btn-sm btn-delete" data-id="${annonce.id}"><i class="fas fa-trash"></i></button>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
                 });
-            }
-            
-            // Fix pour les modales
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.style.zIndex = '10000';
-                modal.querySelectorAll('input, select, textarea, button').forEach(el => {
-                    el.style.pointerEvents = 'auto';
-                });
+            };
+
+            const renderPagination = (totalPages, page) => {
+                paginationContainer.innerHTML = '';
+                if (totalPages <= 1) return;
+                const createPageItem = (text, p, isDisabled = false, isActive = false) => {
+                    const li = document.createElement('li');
+                    li.className = `page-item ${isDisabled ? 'disabled' : ''} ${isActive ? 'active' : ''}`;
+                    const a = document.createElement('a');
+                    a.className = 'page-link';
+                    a.href = '#';
+                    a.textContent = text;
+                    a.dataset.page = p;
+                    li.appendChild(a);
+                    return li;
+                };
+                paginationContainer.appendChild(createPageItem('Précédent', page - 1, page <= 1));
+                for (let i = 1; i <= totalPages; i++) {
+                    paginationContainer.appendChild(createPageItem(i, i, false, i === page));
+                }
+                paginationContainer.appendChild(createPageItem('Suivant', page + 1, page >= totalPages));
+            };
+
+            const populateUserSelects = async () => {
+                try {
+                    const response = await fetch(`${API_URL_USERS}list.php`);
+                    if (!response.ok) throw new Error('Erreur lors de la récupération des utilisateurs');
+                    const users = await response.json();
+                    
+                    userSelectAdd.innerHTML = '<option value="">Sélectionnez un auteur</option>';
+                    userSelectEdit.innerHTML = '<option value="">Sélectionnez un auteur</option>';
+
+                    users.forEach(user => {
+                        const option = `<option value="${user.id}">${user.nom} (${user.email})</option>`;
+                        userSelectAdd.innerHTML += option;
+                        userSelectEdit.innerHTML += option;
+                    });
+                } catch (error) {
+                    console.error(error);
+                    showAlert('Impossible de charger la liste des utilisateurs.', 'danger');
+                }
+            };
+
+            // --- Fonctions API ---
+            const fetchAnnonces = async (page = 1, search = '', statut = '') => {
+                currentPage = page;
+                currentSearch = search;
+                currentStatut = statut;
+                tableBody.innerHTML = '<tr><td colspan="9" class="text-center">Chargement...</td></tr>';
+                
+                try {
+                    const response = await fetch(`${API_URL_ANNONCES}get.php?page=${page}&search=${encodeURIComponent(search)}&statut=${encodeURIComponent(statut)}`);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const data = await response.json();
+                    
+                    renderTable(data.annonces);
+                    renderPagination(data.totalPages, data.currentPage);
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    tableBody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Erreur lors du chargement des annonces.</td></tr>';
+                    showAlert('Impossible de charger les annonces.', 'danger');
+                }
+            };
+
+            // --- Écouteurs d'événements ---
+            searchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                fetchAnnonces(1, searchInput.value.trim(), statutFilter.value);
+            });
+
+            resetSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                statutFilter.value = '';
+                fetchAnnonces(1, '', '');
+            });
+
+            paginationContainer.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (e.target.tagName === 'A' && e.target.dataset.page) {
+                    const page = parseInt(e.target.dataset.page, 10);
+                    if (!isNaN(page)) fetchAnnonces(page, currentSearch, currentStatut);
+                }
+            });
+
+            // Ajout
+            addAnnonceForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
+                data.segmentation_possible = formData.has('segmentation_possible');
+
+                try {
+                    const response = await fetch(`${API_URL_ANNONCES}post.php`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || 'Erreur inconnue.');
+
+                    addAnnonceModal.hide();
+                    showAlert(result.success, 'success');
+                    fetchAnnonces(currentPage, currentSearch, currentStatut);
+                } catch (error) {
+                    showAlert(error.message, 'danger', 'add-alert-container');
+                }
+            });
+
+            // Clics sur Modifier / Supprimer
+            tableBody.addEventListener('click', (e) => {
+                const editButton = e.target.closest('.btn-edit');
+                const deleteButton = e.target.closest('.btn-delete');
+
+                if (editButton) {
+                    const annonce = JSON.parse(editButton.dataset.annonce);
+                    
+                    // Populate form
+                    document.getElementById('edit-id').value = annonce.id;
+                    document.getElementById('edit-titre').value = annonce.titre;
+                    document.getElementById('edit-description').value = annonce.description;
+                    document.getElementById('edit-ville_depart').value = annonce.ville_depart;
+                    document.getElementById('edit-ville_arrivee').value = annonce.ville_arrivee;
+                    document.getElementById('edit-taille').value = annonce.taille;
+                    document.getElementById('edit-prix').value = annonce.prix;
+                    document.getElementById('edit-date_livraison_souhaitee').value = formatDate(annonce.date_livraison_souhaitee);
+                    document.getElementById('edit-date_expiration').value = formatDate(annonce.date_expiration);
+                    document.getElementById('edit-statut').value = annonce.statut;
+                    document.getElementById('edit-segmentation_possible').checked = annonce.segmentation_possible == 1;
+                    document.getElementById('edit-id_client').value = annonce.id_client;
+                    
+                    editAnnonceModal.show();
+                }
+
+                if (deleteButton) {
+                    const id = deleteButton.dataset.id;
+                    if (confirm('Êtes-vous sûr de vouloir supprimer cette annonce ?')) {
+                        fetch(`${API_URL_ANNONCES}delete.php?id=${id}`, { method: 'DELETE' })
+                        .then(response => response.json().then(data => ({ ok: response.ok, data })))
+                        .then(({ ok, data }) => {
+                            if (!ok) throw new Error(data.error);
+                            showAlert(data.success, 'success');
+                            fetchAnnonces(currentPage, currentSearch, currentStatut);
+                        })
+                        .catch(error => showAlert(error.message, 'danger'));
+                    }
+                }
+            });
+
+            // Modification
+            editAnnonceForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
+                data.segmentation_possible = formData.has('segmentation_possible');
+
+                try {
+                    const response = await fetch(`${API_URL_ANNONCES}put.php`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || 'Erreur inconnue.');
+                    
+                    editAnnonceModal.hide();
+                    showAlert(result.success, 'success');
+                    fetchAnnonces(currentPage, currentSearch, currentStatut);
+                } catch (error) {
+                    showAlert(error.message, 'danger', 'edit-alert-container');
+                }
             });
             
-            // Assurer que les boutons qui ouvrent les modales fonctionnent correctement
-            document.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {
-                btn.style.position = 'relative';
-                btn.style.zIndex = '100';
-                btn.style.pointerEvents = 'auto';
+            // Nettoyage des modales
+            addAnnonceModalEl.addEventListener('hidden.bs.modal', () => {
+                document.getElementById('add-alert-container').innerHTML = '';
+                addAnnonceForm.reset();
             });
-            
-            const editModal = document.getElementById('editAnnonceModal');
-            if (editModal) {
-                editModal.addEventListener('show.bs.modal', function(event) {
-                    const button = event.relatedTarget;
-                    
-                    const id = button.getAttribute('data-id');
-                    const titre = button.getAttribute('data-titre');
-                    const description = button.getAttribute('data-description');
-                    const ville_depart = button.getAttribute('data-ville_depart');
-                    const ville_arrivee = button.getAttribute('data-ville_arrivee');
-                    const taille = button.getAttribute('data-taille');
-                    const prix = button.getAttribute('data-prix');
-                    const date_livraison = button.getAttribute('data-date_livraison');
-                    const date_expiration = button.getAttribute('data-date_expiration');
-                    const segmentation_possible = button.getAttribute('data-segmentation_possible');
-                    const statut = button.getAttribute('data-statut');
-                    
-                    editModal.querySelector('#edit-id').value = id;
-                    editModal.querySelector('#edit-titre').value = titre;
-                    editModal.querySelector('#edit-description').value = description;
-                    editModal.querySelector('#edit-ville_depart').value = ville_depart;
-                    editModal.querySelector('#edit-ville_arrivee').value = ville_arrivee;
-                    editModal.querySelector('#edit-taille').value = taille;
-                    editModal.querySelector('#edit-prix').value = prix;
-                    editModal.querySelector('#edit-date_livraison').value = date_livraison;
-                    editModal.querySelector('#edit-date_expiration').value = date_expiration;
-                    editModal.querySelector('#edit-segmentation_possible').checked = segmentation_possible === '1';
-                    editModal.querySelector('#edit-statut').value = statut;
-                });
-            }
-            
-            const deleteModal = document.getElementById('deleteAnnonceModal');
-            if (deleteModal) {
-                deleteModal.addEventListener('show.bs.modal', function(event) {
-                    const button = event.relatedTarget;
-                    
-                    const id = button.getAttribute('data-id');
-                    const titre = button.getAttribute('data-titre');
-                    
-                    deleteModal.querySelector('#delete-id').value = id;
-                    deleteModal.querySelector('#delete-titre').textContent = titre;
-                });
-            }
+            editAnnonceModalEl.addEventListener('hidden.bs.modal', () => {
+                document.getElementById('edit-alert-container').innerHTML = '';
+            });
+
+            // --- Initialisation ---
+            populateUserSelects();
+            fetchAnnonces();
         });
     </script>
 </body>
