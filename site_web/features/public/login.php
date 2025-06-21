@@ -17,15 +17,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user && password_verify($password, $user['mot_de_passe'])) {
-        $_SESSION['utilisateur'] = [
-            'id' => $user['id'],
-            'nom' => $user['nom'],
-            'email' => $user['email'],
-            'role' => $user['role']
-        ];
-
-        header('Location: ' . BASE_URL . '/features/public/espaces/' . $user['role'] . '/index.php');
-        exit;
+        // Vérifier si c'est un livreur et si son compte est validé
+        if ($user['role'] === 'livreur') {
+            // Si le compte livreur n'a pas encore téléchargé de pièce d'identité
+            if ($user['piece_identite'] === NULL) {
+                $_SESSION['utilisateur'] = [
+                    'id' => $user['id'],
+                    'nom' => $user['nom'],
+                    'email' => $user['email'],
+                    'role' => $user['role'],
+                    'validation_identite' => $user['validation_identite']
+                ];
+                header('Location: ' . BASE_URL . '/features/public/upload_identite.php');
+                exit;
+            }
+            // Si le compte est en attente de validation
+            elseif ($user['validation_identite'] === 'en_attente') {
+                $error = "Votre compte est en attente de validation. Vous recevrez un email lorsque votre compte sera validé.";
+            }
+            // Si le compte a été refusé
+            elseif ($user['validation_identite'] === 'refusee') {
+                $_SESSION['utilisateur'] = [
+                    'id' => $user['id'],
+                    'nom' => $user['nom'],
+                    'email' => $user['email'],
+                    'role' => $user['role'],
+                    'validation_identite' => $user['validation_identite']
+                ];
+                header('Location: ' . BASE_URL . '/features/public/upload_identite.php');
+                exit;
+            }
+            // Si le compte est validé
+            elseif ($user['validation_identite'] === 'validee') {
+                $_SESSION['utilisateur'] = [
+                    'id' => $user['id'],
+                    'nom' => $user['nom'],
+                    'email' => $user['email'],
+                    'role' => $user['role'],
+                    'validation_identite' => $user['validation_identite']
+                ];
+                header('Location: ' . BASE_URL . '/features/public/espaces/livreur/index.php');
+                exit;
+            }
+        } else {
+            // Pour les autres rôles, connecter normalement
+            $_SESSION['utilisateur'] = [
+                'id' => $user['id'],
+                'nom' => $user['nom'],
+                'email' => $user['email'],
+                'role' => $user['role']
+            ];
+            
+            // Redirection spécifique pour les administrateurs
+            if ($user['role'] === 'admin') {
+                header('Location: ' . BASE_URL . '/features/admin/index.php');
+            } else {
+                // Pour les autres rôles, rediriger vers leur espace
+                header('Location: ' . BASE_URL . '/features/public/espaces/' . $user['role'] . '/index.php');
+            }
+            exit;
+        }
     } else {
         $error = "Identifiants invalides";
     }

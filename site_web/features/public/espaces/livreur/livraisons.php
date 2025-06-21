@@ -37,6 +37,21 @@ if (!$annonce) {
 
 $adresse_depart = json_encode($annonce['ville_depart']);
 $adresse_arrivee = json_encode($annonce['ville_arrivee']);
+
+// Récupérer les segments de cette livraison
+$stmt_segments = $conn->prepare("
+    SELECT s.*, u.nom AS nom_livreur,
+    pr_depart.nom AS point_relais_depart_nom, pr_depart.ville AS point_relais_depart_ville,
+    pr_arrivee.nom AS point_relais_arrivee_nom, pr_arrivee.ville AS point_relais_arrivee_ville
+    FROM segments s
+    LEFT JOIN utilisateurs u ON s.id_livreur = u.id
+    LEFT JOIN points_relais pr_depart ON s.point_relais_depart = pr_depart.id
+    LEFT JOIN points_relais pr_arrivee ON s.point_relais_arrivee = pr_arrivee.id
+    WHERE s.id_annonce = ?
+    ORDER BY s.id
+");
+$stmt_segments->execute([$id_annonce]);
+$segments = $stmt_segments->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -52,7 +67,7 @@ $adresse_arrivee = json_encode($annonce['ville_arrivee']);
 </head>
 
 <body class="d-flex flex-column min-vh-100">
-    <?php include '../../../../fonctions/header_client.php'; ?>
+<?php include '../../../../fonctions/header_livreur.php'; ?>
 
     <main class="flex-grow-1 container py-4">
         <h2 class="mb-4">Suivi de la livraison</h2>
@@ -95,6 +110,46 @@ $adresse_arrivee = json_encode($annonce['ville_arrivee']);
         </div>
 
         <hr>
+        <h3>Segments de livraison</h3>
+        <?php if (!empty($segments)): ?>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Départ</th>
+                            <th>Arrivée</th>
+                            <th>Livreur</th>
+                            <th>Statut</th>
+                            <th>Point relais départ</th>
+                            <th>Point relais arrivée</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($segments as $segment): 
+                            $statut_segment = strtolower($segment['statut']);
+                            $couleur_segment = match($statut_segment) {
+                                'livré' => '🟢',
+                                'en cours' => '🟠',
+                                'en attente', 'en point relais' => '🟡',
+                                'annulé' => '🔴',
+                                default => '⚪',
+                            };
+                        ?>
+                            <tr>
+                                <td><?= htmlspecialchars($segment['adresse_depart']) ?></td>
+                                <td><?= htmlspecialchars($segment['adresse_arrivee']) ?></td>
+                                <td><?= $segment['nom_livreur'] ? htmlspecialchars($segment['nom_livreur']) : 'Non attribué' ?></td>
+                                <td><?= $couleur_segment . ' ' . htmlspecialchars($segment['statut']) ?></td>
+                                <td><?= $segment['point_relais_depart_nom'] ? htmlspecialchars($segment['point_relais_depart_nom'] . ' - ' . $segment['point_relais_depart_ville']) : '-' ?></td>
+                                <td><?= $segment['point_relais_arrivee_nom'] ? htmlspecialchars($segment['point_relais_arrivee_nom'] . ' - ' . $segment['point_relais_arrivee_ville']) : '-' ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php else: ?>
+            <div class="alert alert-info">Aucun segment n'a encore été créé pour cette livraison.</div>
+        <?php endif; ?>
     </main>
 
     <?php include '../../../../fonctions/footer.php'; ?>
@@ -152,7 +207,7 @@ $adresse_arrivee = json_encode($annonce['ville_arrivee']);
                 console.error(err);
                 const infoDiv = document.getElementById('itineraire-info');
                 infoDiv.classList.replace('alert-info', 'alert-danger');
-                infoDiv.textContent = "Erreur lors du calcul de l’itinéraire.";
+                infoDiv.textContent = "Erreur lors du calcul de l'itinéraire.";
                 infoDiv.style.display = 'block';
             }
         }

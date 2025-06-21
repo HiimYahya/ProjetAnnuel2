@@ -1,18 +1,9 @@
 <?php
-
-include '../../../../fonctions/db.php';
-include '../../../../fonctions/fonctions.php';
-include '../../../../fonctions/icons.php';
-
 session_start();
-
 if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'client') {
     header('Location: ../../../../public/login.php');
     exit;
 }
-
-$conn = getConnexion();
-
 ?>
 
 <!doctype html>

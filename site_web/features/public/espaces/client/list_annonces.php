@@ -1,92 +1,85 @@
 <?php
-require_once '../../../../fonctions/db.php';
-$conn = getConnexion();
-
-// Récupérer toutes les annonces avec les infos client
-$stmt = $conn->prepare("
-    SELECT a.*, u.nom AS nom_client
-    FROM annonces a
-    JOIN utilisateurs u ON a.id_client = u.id
-    WHERE a.statut = 'en attente'
-    ORDER BY a.date_annonce DESC
-");
-$stmt->execute();
-$annonces = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 session_start();
 if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'client') {
-    header('Location: ../../../../public/login.php');
-    exit;
+  header('Location: ../../../../public/login.php');
+  exit;
 }
-
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Mes annonces</title>
+  <title>Liste des annonces</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <style>
-    .card:hover {
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    .statut-dot {
-      font-size: 1.2rem;
-      vertical-align: middle;
-    }
-  </style>
 </head>
-
 <?php include '../../../../fonctions/header_client.php'; ?>
-
 <body class="d-flex flex-column min-vh-100">
-
-  <main class="flex-grow-1">
-    <div class="container py-4">
-      <h2 class="mb-4 text-start">Toutes les annonces</h2>
-
-      <div class="row row-cols-1 row-cols-md-2 g-4">
-        <?php foreach ($annonces as $annonce): 
-          $statut = strtolower($annonce['statut']);
-          $dot = match($statut) {
-              'livrée' ,'en attente' => '🟢',
-              'prise en charge', 'en cours' => '🟠',
-              'annulée' => '🔴',
-              default => '⚪'
-          };
-        ?>
-          <div class="col">
-            <div class="card h-100 shadow-sm">
-              <div class="card-body">
-                <strong class="d-inline-block mb-2 text-primary"><?= htmlspecialchars($annonce['nom_client']) ?></strong>
-                <h5 class="card-title"><?= htmlspecialchars($annonce['titre']) ?></h5>
-                <p class="card-text">
-                  <strong>De :</strong> <?= htmlspecialchars($annonce['ville_depart']) ?><br>
-                  <strong>À :</strong> <?= htmlspecialchars($annonce['ville_arrivee']) ?><br>
-                  <strong>Prix :</strong> <?= $annonce['prix'] ? number_format($annonce['prix'], 2) . " €" : '-' ?><br>
-                  <strong>Date livraison :</strong> <?= htmlspecialchars($annonce['date_livraison_souhaitee'] ?? '-') ?><br>
-                  <strong>Expiration :</strong> <?= htmlspecialchars($annonce['date_expiration'] ?? '-') ?><br>
-                  <strong>Description :</strong> <?= nl2br(htmlspecialchars($annonce['description'])) ?>
-                </p>
-                <p class="card-text">
-                  <small class="text-muted">
-                    Statut : <span class="statut-dot"><?= $dot ?></span> <?= htmlspecialchars($annonce['statut']) ?>
-                  </small>
-                </p>
-                <a href="livraisons.php?id=<?= $annonce['id'] ?>" class="btn btn-sm btn-outline-primary">Suivi</a>
-              </div>
-            </div>
-          </div>
-        <?php endforeach; ?>
-      </div>
-    </div>
-  </main>
-
+  <div class="container py-5">
+    <h2 class="mb-4">Liste de mes annonces</h2>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Titre</th>
+          <th>Départ</th>
+          <th>Arrivée</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="annonces-list">
+        <tr><td colspan="5" class="text-center">Chargement...</td></tr>
+      </tbody>
+    </table>
+  </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../../../assets/js/darkmode.js"></script>
+  <script>
+  function statutCouleur(statut) {
+    statut = (statut||'').toLowerCase();
+    if (statut === 'livrée') return '🟢';
+    if (statut === 'en attente' || statut === 'prise en charge') return '🟠';
+    if (statut === 'annulée') return '🔴';
+    return '⚪';
+  }
+  function chargerAnnonces() {
+    fetch('../../../../api/client/annonces/get.php', { credentials: 'same-origin' })
+      .then(r => r.json())
+      .then(data => {
+        const tbody = document.getElementById('annonces-list');
+        tbody.innerHTML = '';
+        if (!Array.isArray(data)) {
+          tbody.innerHTML = '<tr><td colspan="5" class="text-danger">Erreur de format de données</td></tr>';
+          return;
+        }
+        if (!data.length) {
+          tbody.innerHTML = '<tr><td colspan="5" class="text-center">Aucune annonce</td></tr>';
+          return;
+        }
+        data.forEach(annonce => {
+          tbody.innerHTML += `<tr>
+            <td>${annonce.titre || ''}</td>
+            <td>${annonce.ville_depart || ''}</td>
+            <td>${annonce.ville_arrivee || ''}</td>
+            <td>${statutCouleur(annonce.statut)} ${annonce.statut || ''}</td>
+            <td>
+              <a href="livraisons.php?id=${annonce.id}" class="btn btn-info btn-sm">Suivi</a>
+              <button class="btn btn-danger btn-sm" onclick="supprimerAnnonce(${annonce.id})">Supprimer</button>
+            </td>
+          </tr>`;
+        });
+      })
+      .catch(e => {
+        document.getElementById('annonces-list').innerHTML = '<tr><td colspan="5" class="text-danger">Erreur JS : ' + e + '</td></tr>';
+      });
+  }
+  function supprimerAnnonce(id) {
+    if (!confirm('Confirmer la suppression de cette annonce ?')) return;
+    fetch(`../../../../api/client/annonces/delete.php?id=${id}`, { method: 'DELETE', credentials: 'same-origin' })
+      .then(r => r.json())
+      .then(res => { if (res.success) chargerAnnonces(); else alert('Erreur suppression'); });
+  }
+  chargerAnnonces();
+  </script>
   <?php include '../../../../fonctions/footer.php'; ?>
-  
 </body>
 </html>

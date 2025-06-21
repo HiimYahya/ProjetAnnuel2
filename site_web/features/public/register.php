@@ -19,9 +19,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($stmt->fetch()) {
         $error = "Un compte existe déjà avec cet email.";
     } else {
-
-        $stmt = $conn->prepare("INSERT INTO utilisateurs (nom, email, mot_de_passe, role) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$nom, $email, $mot_de_passe, $role]);
+        // Si l'utilisateur est un livreur, le statut de validation est initialement 'en_attente'
+        $validation_identite = ($role === 'livreur') ? 'en_attente' : NULL;
+        
+        $stmt = $conn->prepare("INSERT INTO utilisateurs (nom, email, mot_de_passe, role, validation_identite) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$nom, $email, $mot_de_passe, $role, $validation_identite]);
 
         $id = $conn->lastInsertId();
 
@@ -29,15 +31,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'id' => $id,
             'nom' => $nom,
             'email' => $email,
-            'role' => $role
+            'role' => $role,
+            'validation_identite' => $validation_identite
         ];
 
-        header("Location: $BASE_URL/features/public/espaces/{$role}/index.php");
+        // Si c'est un livreur, rediriger vers la page de téléchargement d'identité
+        if ($role === 'livreur') {
+            header("Location: $BASE_URL/features/public/upload_identite.php");
+        } else {
+            header("Location: $BASE_URL/features/public/espaces/{$role}/index.php");
+        }
         exit;
     }
 }
-?>
 
+?>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -49,6 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="d-flex justify-content-center align-items-center vh-100 bg-light">
     <form class="p-4 bg-white rounded shadow" method="POST">
         <h2 class="mb-4">Créer un compte</h2>
+
+        <?php if (!empty($error)): ?>
+            <div class="alert alert-danger"><?= $error ?></div>
+        <?php endif; ?>
 
         <div class="mb-3">
             <label for="nom" class="form-label">Nom</label>
