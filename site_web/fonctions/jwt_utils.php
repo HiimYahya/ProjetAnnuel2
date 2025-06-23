@@ -6,7 +6,7 @@ use Firebase\JWT\Key;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-const JWT_SECRET = 'votre_cle_secrete_a_remplacer'; // À personnaliser !
+const JWT_SECRET = 'caca123';
 const JWT_ALGO = 'HS256';
 
 function create_jwt($payload) {

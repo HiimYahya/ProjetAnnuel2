@@ -23,12 +23,19 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'cl
           <th>Départ</th>
           <th>Arrivée</th>
           <th>Statut</th>
+<<<<<<< HEAD
           <th>Validation</th>
+=======
+>>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
           <th>Actions</th>
         </tr>
       </thead>
       <tbody id="annonces-list">
+<<<<<<< HEAD
         <tr><td colspan="6" class="text-center">Chargement...</td></tr>
+=======
+        <tr><td colspan="5" class="text-center">Chargement...</td></tr>
+>>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
       </tbody>
     </table>
   </div>
@@ -49,6 +56,7 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'cl
         const tbody = document.getElementById('annonces-list');
         tbody.innerHTML = '';
         if (!Array.isArray(data)) {
+<<<<<<< HEAD
           tbody.innerHTML = '<tr><td colspan="6" class="text-danger">Erreur de format de données</td></tr>';
           return;
         }
@@ -90,6 +98,30 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'cl
       })
       .catch(e => {
         document.getElementById('annonces-list').innerHTML = '<tr><td colspan="6" class="text-danger">Erreur JS : ' + e + '</td></tr>';
+=======
+          tbody.innerHTML = '<tr><td colspan="5" class="text-danger">Erreur de format de données</td></tr>';
+          return;
+        }
+        if (!data.length) {
+          tbody.innerHTML = '<tr><td colspan="5" class="text-center">Aucune annonce</td></tr>';
+          return;
+        }
+        data.forEach(annonce => {
+          tbody.innerHTML += `<tr>
+            <td>${annonce.titre || ''}</td>
+            <td>${annonce.ville_depart || ''}</td>
+            <td>${annonce.ville_arrivee || ''}</td>
+            <td>${statutCouleur(annonce.statut)} ${annonce.statut || ''}</td>
+            <td>
+              <a href="livraisons.php?id=${annonce.id}" class="btn btn-info btn-sm">Suivi</a>
+              <button class="btn btn-danger btn-sm" onclick="supprimerAnnonce(${annonce.id})">Supprimer</button>
+            </td>
+          </tr>`;
+        });
+      })
+      .catch(e => {
+        document.getElementById('annonces-list').innerHTML = '<tr><td colspan="5" class="text-danger">Erreur JS : ' + e + '</td></tr>';
+>>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
       });
   }
   function supprimerAnnonce(id) {
@@ -98,6 +130,7 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'cl
       .then(r => r.json())
       .then(res => { if (res.success) chargerAnnonces(); else alert('Erreur suppression'); });
   }
+<<<<<<< HEAD
   function validerLivraison(id, btn) {
     btn.disabled = true;
     fetch('../../../../api/client/livraisons/post.php', {
@@ -113,6 +146,8 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'cl
     })
     .catch(e => { alert('Erreur JS : ' + e); btn.disabled = false; });
   }
+=======
+>>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
   chargerAnnonces();
   </script>
   <?php include '../../../../fonctions/footer.php'; ?>

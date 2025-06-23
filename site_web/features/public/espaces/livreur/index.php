@@ -31,6 +31,7 @@ $conn = getConnexion();
             <h1>Tableau de bord Livreur</h1>
         </div>
         
+<<<<<<< HEAD
         <!-- Message de bienvenue avec nom utilisateur -->
         <div class="alert alert-success mb-4">
           <h4 class="alert-heading">Bienvenue <?php echo htmlspecialchars($_SESSION['utilisateur']['nom']); ?> !</h4>
@@ -65,6 +66,14 @@ $conn = getConnexion();
         </div>
         
         <div class="page-content">
+=======
+        <div class="page-content">
+            <!-- Message de bienvenue avec nom utilisateur -->
+            <div class="alert alert-success mb-4">
+                <h4 class="alert-heading">Bienvenue <?php echo htmlspecialchars($_SESSION['utilisateur']['nom']); ?> !</h4>
+                <p>Votre espace livreur vous permet d'accepter des livraisons ou de prendre en charge des segments.</p>
+            </div>
+>>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
             
             <div class="row">
                 <!-- Carte segments disponibles -->
@@ -124,6 +133,7 @@ $conn = getConnexion();
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<<<<<<< HEAD
     <script>
     // Stats principales
     fetch('/site_web/api/livreur/livraisons/get.php', { credentials: 'same-origin' })
@@ -150,6 +160,8 @@ $conn = getConnexion();
         document.getElementById('stat-segments').textContent = segments;
       });
     </script>
+=======
+>>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
     <?php include '../../../../fonctions/footer.php'; ?>
 </body>
 </html>

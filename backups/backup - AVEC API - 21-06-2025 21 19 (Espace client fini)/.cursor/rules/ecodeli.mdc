@@ -1,0 +1,50 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Rule Name: EcoDeli - Projet de livraison écologique
+Description: Règles et conventions pour le projet EcoDeli, une plateforme de livraison écologique avec différents types d'utilisateurs (clients, livreurs, prestataires, commerçants).
+
+## Structure du projet
+
+- **assets/**: Contient les ressources du site (JavaScript, CSS, images de marque)
+  - **js/**: Scripts JavaScript
+  - **dist/**: Fichiers compilés/distribués
+  - **brand/**: Images et éléments de marque
+
+- **features/**: Fonctionnalités principales et pages de l'application
+  - Pages par type d'utilisateur (client.php, livreur.php, prestataire.php)
+  - Gestion des paiements (paiements.php)
+  - Interface d'administration (backend.php)
+  - **public/**: Pages accessibles au public
+  - **modify/**: Fonctionnalités de modification des données
+
+- **fonctions/**: Composants réutilisables et utilitaires
+  - Connexion à la base de données (db.php)
+  - Headers spécifiques par rôle (header_client.php, header_livreur.php, etc.)
+  - Fonctions génériques (fonctions.php)
+
+- **uploads/**: Stockage des fichiers téléchargés par les utilisateurs
+
+## Conventions de code
+
+1. Les noms de fichiers utilisent le format snake_case.php
+2. Les fonctions utilisent le format camelCase()
+3. Les pages principales sont nommées selon le rôle d'utilisateur
+4. Les composants d'interface sont séparés en headers spécifiques pour chaque rôle
+5. La base de données est MySQL avec connexion via PDO
+
+## Base de données
+
+- La base de données s'appelle "PA2"
+- Table principale "utilisateurs" avec différenciations par rôle ("client", "livreur", "prestataire", "commercant")
+- Toujours vérifier la structure dans 'bdd/pa2_1305.sql'
+
+
+## Design et interface
+
+- Utilisation de Bootstrap 5.3 pour l'interface
+- Support du mode sombre/clair
+
+- Éléments responsifs pour tous les appareils

@@ -1,0 +1,146 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Rule Name: Features - Organisation des fonctionnalités
+Description: Règles et conventions pour l'organisation et la gestion des fonctionnalités dans le dossier features du projet EcoDeli.
+
+## Structure du dossier features
+
+- **admin/**: Interface d'administration
+  - Chaque fichier correspond à une section de l'administration (utilisateurs.php, annonces.php, etc.)
+  - Doit suivre une structure cohérente pour toutes les pages d'administration
+
+- **public/**: Pages accessibles sans authentification
+  - Page d'accueil, connexion, inscription, etc.
+  - Contenu accessible à tous les visiteurs
+
+- **client/**: Fonctionnalités pour les clients
+  - Commandes, paiements, suivi, etc.
+
+- **livreur/**: Fonctionnalités pour les livreurs
+  - Livraisons, statuts, itinéraires, etc.
+
+- **prestataire/**: Fonctionnalités pour les prestataires de services
+  - Gestion des services proposés, etc.
+
+- **commercant/**: Fonctionnalités pour les commerçants
+  - Gestion des produits, etc.
+
+## Conventions d'implémentation
+
+1. Vérification de l'authentification et des rôles au début de chaque fichier
+2. Validation des données d'entrée pour éviter les injections SQL
+3. Chaque page respecte l'architecture MVC dans sa structure
+4. Utilisez les préparations de requêtes pour la sécurité
+5. Séparation des traitements (PHP) et de l'affichage (HTML)
+
+## UI/UX Consistency Rules
+
+1. Chaque page admin doit utiliser la classe `.content` avec structure: 
+   ```html
+   <div class="content">
+     <div class="container-fluid">
+       <!-- Contenu -->
+     </div>
+   </div>
+   ```
+
+2. Toutes les pages d'administration doivent inclure le header admin via:
+   ```php
+   <?php include '../../fonctions/header_admin.php'; ?>
+   ```
+
+3. Les tableaux de données doivent être dans une card avec classe `.table-responsive`
+
+## Button Interaction Rules
+
+1. Tous les boutons cliquables doivent avoir les attributs suivants pour garantir leur fonctionnalité:
+   - `position: relative;`
+   - `z-index: 5;` (minimum)
+   - `pointer-events: auto;`
+
+2. Pour les boutons dans les en-têtes de cartes, toujours utiliser:
+   ```html
+   <a href="..." class="btn btn-sm btn-primary" style="pointer-events: auto; position: relative; z-index: 5;">Texte</a>
+   ```
+
+3. Les boutons de type "Voir tout" doivent toujours pointer vers des URLs absolues (/site_web/features/...)
+
+4. Tous les éléments qui recouvrent potentiellement des boutons doivent avoir `pointer-events: none;`
+
+5. Les boutons d'action (éditer, supprimer) doivent utiliser la classe `.btn-group-sm` pour assurer une taille cohérente
+
+## Sécurité
+
+1. Validation de l'authentification et des permissions pour chaque page
+2. Échappement des données affichées pour prévenir les attaques XSS
+3. Protection contre les CSRF pour les formulaires
+
+## Gestion des erreurs
+
+1. Messages d'erreur clairs et spécifiques
+2. Journalisation des erreurs critiques
+3. Redirection appropriée en cas d'erreur
+
+## Structure du dossier features
+
+- **Pages principales par rôle d'utilisateur**:
+  - client.php: Interface et fonctionnalités pour les clients
+  - livreur.php: Interface et fonctionnalités pour les livreurs
+  - prestataire.php: Interface et fonctionnalités pour les prestataires
+  - backend.php: Interface d'administration générale
+
+- **Fonctionnalités transversales**:
+  - paiements.php: Gestion des paiements et transactions
+  - livraisons.php: Gestion des livraisons en cours
+
+- **Sous-dossiers fonctionnels**:
+  - public/: Pages accessibles sans authentification
+  - modify/: Scripts de modification des données (modify.php, delete.php)
+
+## Conventions de code
+
+1. Inclure les dépendances nécessaires en début de fichier
+   ```php
+   include '../fonctions/db.php';
+   include '../fonctions/fonctions.php';
+   ```
+
+2. Utiliser la structure HTML5 standard avec Bootstrap pour toutes les pages
+   ```php
+   <!doctype html>
+   <html lang="fr" data-bs-theme="auto">
+   <head>
+       <!-- Meta, title, CSS -->
+   </head>
+   <body>
+       <!-- Contenu -->
+   </body>
+   </html>
+   ```
+
+3. Inclure les fichiers d'en-tête et de pied de page appropriés
+   ```php
+   include '../fonctions/header.php';
+   // ...
+   include '../fonctions/footer.php';
+   ```
+
+4. Utiliser les fonctions communes du fichier fonctions.php pour les opérations répétitives
+
+## Contrôle d'accès
+
+1. Vérifier le rôle et les permissions de l'utilisateur au début de chaque page
+2. Rediriger vers la page de connexion si l'utilisateur n'est pas authentifié
+3. Séparer clairement les fonctionnalités par type d'utilisateur
+
+## Affichage des données
+
+1. Utiliser la fonction `afficherAvecLimite()` pour l'affichage des tableaux de données
+2. Échapper correctement les données affichées avec htmlspecialchars
+3. Inclure les options de pagination pour les grands ensembles de données
+
+
+

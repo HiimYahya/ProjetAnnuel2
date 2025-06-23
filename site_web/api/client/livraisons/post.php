@@ -16,6 +16,7 @@ $data = json_decode(file_get_contents('php://input'), true);
 $action = $data['action'] ?? '';
 $id_livraison = $data['id_livraison'] ?? null;
 if ($action === 'valider_livraison' && $id_livraison) {
+<<<<<<< HEAD
     // 1. Valider la livraison
     $stmt = $conn->prepare("UPDATE livraisons SET validation_client = 1 WHERE id = ? AND id_client = ?");
     $stmt->execute([$id_livraison, $id_client]);
@@ -75,6 +76,12 @@ if ($action === 'valider_livraison' && $id_livraison) {
         }
     }
 
+=======
+    $stmt = $conn->prepare("UPDATE livraisons SET validation_client = 1, statut = 'en cours' WHERE id = ? AND id_client = ?");
+    $stmt->execute([$id_livraison, $id_client]);
+    $stmt = $conn->prepare("UPDATE segments SET statut = 'en cours' WHERE id_livraison = ? AND statut = 'en attente'");
+    $stmt->execute([$id_livraison]);
+>>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
     echo json_encode(['success' => true]);
     exit;
 }
