@@ -61,6 +61,7 @@ $methodeOptions = getDistinctValues($conn, $table, 'methode');
     <title>Modifier - <?php echo htmlspecialchars($table); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="../../assets/js/color-modes.js"></script>
 </head>
 <body class="d-flex flex-column min-vh-100">
 <?php include '../../fonctions/header.php'; ?>
@@ -100,10 +101,8 @@ $methodeOptions = getDistinctValues($conn, $table, 'methode');
         <a href="javascript:history.back()" class="btn btn-secondary">Annuler</a>
     </form>
 </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../../assets/js/darkmode.js"></script>
-    <?php include '../../fonctions/footer.php'; ?>
-
+<?php include '../../fonctions/footer.php'; ?>
+<?php include '../../fonctions/darkmode.php'; ?>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -20,26 +20,13 @@ $conn = getConnexion();
 <?php include '../fonctions/header.php'; ?>
 
 <body class="d-flex flex-column min-vh-100">
-    <div class="container-fluid">
-        <div class="page-title">
-            <h1>Liste des Livreurs</h1>
-        </div>
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="fas fa-truck me-2"></i>Livreurs</h5>
-                    </div>
-                    <div class="card-body">
-                        <?php afficherAvecLimite($conn, 'livreurs', 'id, nom, statut', 1000, 'DESC'); ?>
-                    </div>
-                    <div class="card-footer text-end">
-                        <a href='backend.php' class='btn btn-primary btn-sm'>Retour</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+    <div class="container py-4">
+        <h1 class="mb-4">Liste des Livreurs</h1>
+            <?php afficherAvecLimite($conn, 'livreurs', 'id, nom, statut', 1000, 'DESC'); ?>
+            <a href='backend.php'class='btn btn-primary btn-sm'>Retour</a>
     </div>
+
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
