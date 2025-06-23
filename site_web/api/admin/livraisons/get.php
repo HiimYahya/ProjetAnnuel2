@@ -3,35 +3,12 @@ session_start();
 header('Content-Type: application/json');
 include '../../../fonctions/db.php';
 include '../../../fonctions/fonctions.php';
-include '../../../fonctions/jwt_utils.php';
 
-// Récupération robuste du header Authorization (compatible Apache/Windows)
-$authHeader = null;
-if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
-    $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
-} elseif (function_exists('apache_request_headers')) {
-    $headers = apache_request_headers();
-    if (isset($headers['Authorization'])) {
-        $authHeader = $headers['Authorization'];
-    }
-}
-
-if ($authHeader && preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-    $jwt = $matches[1];
-    $decoded = verify_jwt($jwt);
-    if ($decoded && isset($decoded['role']) && $decoded['role'] === 'admin') {
-        $_SESSION['utilisateur'] = [
-            'id' => $decoded['id'],
-            'nom' => $decoded['nom'],
-            'email' => $decoded['email'],
-            'role' => $decoded['role'],
-            'validation_identite' => $decoded['validation_identite'] ?? null
-        ];
-    } else {
-        http_response_code(403);
-        echo json_encode(['error' => 'Token JWT invalide ou non admin']);
-        exit;
-    }
+// Vérification de l'authentification et du rôle d'administrateur
+if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'admin') {
+    http_response_code(403);
+    echo json_encode(['error' => 'Accès non autorisé']);
+    exit;
 }
 
 try {
@@ -87,22 +64,6 @@ try {
     $stmt = $conn->prepare($query);
     $stmt->execute($params);
     $livraisons = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Récupérer les segments pour chaque livraison
-    $stmt_segment = $conn->prepare("SELECT s.*, 
-                                   u.nom as livreur_nom, 
-                                   pd.nom as point_relais_depart_nom,
-                                   pa.nom as point_relais_arrivee_nom
-                                   FROM segments s 
-                                   LEFT JOIN utilisateurs u ON s.id_livreur = u.id
-                                   LEFT JOIN points_relais pd ON s.point_relais_depart = pd.id
-                                   LEFT JOIN points_relais pa ON s.point_relais_arrivee = pa.id
-                                   WHERE s.id_livraison = ?");
-
-    foreach ($livraisons as $key => $livraison) {
-        $stmt_segment->execute([$livraison['id']]);
-        $livraisons[$key]['segments'] = $stmt_segment->fetchAll(PDO::FETCH_ASSOC);
-    }
 
     echo json_encode([
         'livraisons' => $livraisons,

@@ -52,29 +52,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function statutCouleur(statut) {
     statut = (statut || '').toLowerCase();
-<<<<<<< HEAD
     if (statut === 'livrée' || statut === 'livré') return '🟢';
     if (statut === 'en attente' || statut === 'prise en charge' || statut === 'en cours') return '🟠';
     if (statut === 'annulée' || statut === 'annulé') return '🔴';
     if (statut === 'en point relais') return '🟡';
-=======
-    if (statut === 'livrée') return '🟢';
-    if (statut === 'en attente' || statut === 'en cours') return '🟠';
-    if (statut === 'annulée') return '🔴';
-    return '⚪';
-  }
-  function statutCouleurSegment(statut) {
-    statut = (statut || '').toLowerCase();
-    if (statut === 'livré') return '🟢';
-    if (statut === 'en cours') return '🟠';
-    if (statut === 'en attente' || statut === 'en point relais') return '🟡';
-    if (statut === 'annulé') return '🔴';
->>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
     return '⚪';
   }
 
   function afficherLivraison(data) {
-<<<<<<< HEAD
     if (!data || !data.livraison) {
       livraisonInfo.innerHTML = '<div class="alert alert-danger">Livraison introuvable.</div>';
       return;
@@ -129,40 +114,6 @@ document.addEventListener('DOMContentLoaded', function () {
         <li><strong>Date de livraison :</strong> ${l.date_livraison || ''}</li>
       </ul>`;
     }
-=======
-    if (!data.livraison || !data.annonce) {
-      livraisonInfo.innerHTML = '<div class="alert alert-danger">Livraison ou annonce introuvable.</div>';
-      return;
-    }
-    const l = data.livraison;
-    const a = data.annonce;
-    const couleur = statutCouleur(l.statut);
-    livraisonInfo.innerHTML = `<ul>
-      <li><strong>Livreur :</strong> ${l.nom_livreur ? l.nom_livreur : 'Non attribué'}</li>
-      <li><strong>Statut :</strong> ${couleur} ${l.statut}</li>
-      <li><strong>Date prise en charge :</strong> ${l.date_prise_en_charge || ''}</li>
-      <li><strong>Date de livraison :</strong> ${l.date_livraison || ''}</li>
-      <br>
-      <h3>Description de l'annonce :</h3>
-      <p>${(a.description || '').replace(/\n/g, '<br>')}</p>
-    </ul>`;
-    adresseDepartSpan.textContent = a.ville_depart || '';
-    adresseArriveeSpan.textContent = a.ville_arrivee || '';
-    afficherSegments(data.segments);
-    tracerItineraire(a.ville_depart, a.ville_arrivee);
-  }
-
-  function afficherSegments(segments) {
-    if (!segments || !segments.length) {
-      segmentsTable.innerHTML = '<div class="alert alert-info">Aucun segment n\'a encore été créé pour cette livraison.</div>';
-      return;
-    }
-    let html = `<div class="table-responsive"><table class="table table-bordered table-striped"><thead><tr><th>Départ</th><th>Arrivée</th><th>Livreur</th><th>Statut</th><th>Point relais départ</th><th>Point relais arrivée</th></tr></thead><tbody>`;
-    segments.forEach(segment => {
-      html += `<tr><td>${segment.adresse_depart || ''}</td><td>${segment.adresse_arrivee || ''}</td><td>${segment.nom_livreur || 'Non attribué'}</td><td>${statutCouleurSegment(segment.statut)} ${segment.statut}</td><td>${segment.point_relais_depart_nom ? segment.point_relais_depart_nom + ' - ' + segment.point_relais_depart_ville : '-'}</td><td>${segment.point_relais_arrivee_nom ? segment.point_relais_arrivee_nom + ' - ' + segment.point_relais_arrivee_ville : '-'}</td></tr>`;
-    });
-    html += '</tbody></table></div>';
->>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
     segmentsTable.innerHTML = html;
   }
 
@@ -202,11 +153,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const distance = data.features[0].properties.summary.distance / 1000;
       const duration = data.features[0].properties.summary.duration / 60;
       itineraireInfo.className = 'alert alert-info';
-<<<<<<< HEAD
       itineraireInfo.innerHTML = `<strong>Itinéraire :</strong><br>Distance : <span class=\"text-primary\">${distance.toFixed(2)} km</span><br>Durée estimée : <span class=\"text-primary\">${duration.toFixed(0)} min</span>`;
-=======
-      itineraireInfo.innerHTML = `<strong>Itinéraire :</strong><br>Distance : <span class="text-primary">${distance.toFixed(2)} km</span><br>Durée estimée : <span class="text-primary">${duration.toFixed(0)} min</span>`;
->>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
     } catch (err) {
       console.error(err);
       itineraireInfo.className = 'alert alert-danger';
@@ -220,7 +167,6 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(r => r.json())
     .then(data => {
       afficherLivraison(data);
-<<<<<<< HEAD
 
       // Détermination de la possibilité de marquer comme livrée
       const l = data.livraison;
@@ -276,13 +222,3 @@ function marquerLivree(idLivraison) {
 </script>
 </body>
 </html>
-=======
-    })
-    .catch(e => {
-      livraisonInfo.innerHTML = '<div class="alert alert-danger">Erreur JS : ' + e + '</div>';
-    });
-});
-</script>
-</body>
-</html>
->>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3

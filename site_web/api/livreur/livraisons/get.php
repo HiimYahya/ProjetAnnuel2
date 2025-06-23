@@ -9,17 +9,12 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'li
 require_once '../../../fonctions/db.php';
 $conn = getConnexion();
 $id_livreur = $_SESSION['utilisateur']['id'];
-<<<<<<< HEAD
 $stmt = $conn->prepare("SELECT l.*, u.nom AS nom_client FROM livraisons l JOIN utilisateurs u ON l.id_client = u.id WHERE l.id_livreur = ? ORDER BY l.date_prise_en_charge DESC");
-=======
-$stmt = $conn->prepare("SELECT l.*, a.titre, a.description, a.ville_depart, a.ville_arrivee, u.nom AS nom_client FROM livraisons l JOIN annonces a ON l.id_annonce = a.id JOIN utilisateurs u ON l.id_client = u.id WHERE l.id_livreur = ? ORDER BY l.date_prise_en_charge DESC");
->>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
 $stmt->execute([$id_livreur]);
 $livraisons = $stmt->fetchAll(PDO::FETCH_ASSOC);
 foreach ($livraisons as &$livraison) {
     $livraison['date_prise_en_charge'] = $livraison['date_prise_en_charge'] ? date('d/m/Y', strtotime($livraison['date_prise_en_charge'])) : '-';
     $livraison['validation_client'] = (int)$livraison['validation_client'];
-<<<<<<< HEAD
     // Détermination de la livrabilité
     $livraison['livrable'] = false;
     // Récupérer l'annonce liée
@@ -77,7 +72,5 @@ foreach ($groupes as $groupe) {
             $livraison['livrable'] = false;
         }
     }
-=======
->>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
 }
 echo json_encode(['livraisons' => $livraisons]); 

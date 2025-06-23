@@ -42,15 +42,6 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'li
             </a>
           </li>
           <li class="nav-item">
-<<<<<<< HEAD
-=======
-            <a class="nav-link" href="/site_web/features/public/espaces/livreur/segments_disponibles.php">
-              <svg class="bi" width="16" height="16"><use xlink:href="#boxes"/></svg>
-              Segments disponibles
-            </a>
-          </li>
-          <li class="nav-item">
->>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
             <a class="nav-link" href="/site_web/features/public/espaces/livreur/calendrier.php">
               <svg class="bi" width="16" height="16"><use xlink:href="#calendar3"/></svg>
               Calendrier

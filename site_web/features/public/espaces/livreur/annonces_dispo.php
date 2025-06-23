@@ -30,19 +30,9 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'li
                 <option value="">Toutes les villes</option>
               </select>
             </div>
-<<<<<<< HEAD
             <div class="col-md-4">
               <label for="search" class="form-label">Recherche</label>
               <input type="text" class="form-control" id="search" name="search" placeholder="Titre, ville, client...">
-=======
-            <div class="col-md-2">
-              <label for="prix_min" class="form-label">Prix min (€)</label>
-              <input type="number" class="form-control" id="prix_min" name="prix_min" min="0" step="0.01">
-            </div>
-            <div class="col-md-2">
-              <label for="prix_max" class="form-label">Prix max (€)</label>
-              <input type="number" class="form-control" id="prix_max" name="prix_max" min="0" step="0.01">
->>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
             </div>
             <div class="col-md-2">
               <label for="tri" class="form-label">Trier par</label>
@@ -77,12 +67,7 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'li
     const formFiltres = document.getElementById('form-filtres');
     const villeSelect = document.getElementById('ville');
     const triSelect = document.getElementById('tri');
-<<<<<<< HEAD
     const searchInput = document.getElementById('search');
-=======
-    const prixMinInput = document.getElementById('prix_min');
-    const prixMaxInput = document.getElementById('prix_max');
->>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
     const annoncesList = document.getElementById('annonces-list');
     const messageAnnonces = document.getElementById('message-annonces');
     const btnReset = document.getElementById('btn-reset');
@@ -116,12 +101,7 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'li
       messageAnnonces.innerHTML = '';
       const params = new URLSearchParams({
         ville: villeSelect.value,
-<<<<<<< HEAD
         search: searchInput.value,
-=======
-        prix_min: prixMinInput.value,
-        prix_max: prixMaxInput.value,
->>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
         tri: triSelect.value
       });
       fetch('../../../../api/livreur/annonces/get.php?' + params.toString())
@@ -155,7 +135,6 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'li
                 urgence = diff <= 3 ? 'text-danger fw-bold' : (diff <= 7 ? 'text-warning' : 'text-success');
               }
             }
-<<<<<<< HEAD
             html += `<div class="col"><div class="card h-100 shadow-sm"><div class="card-header d-flex justify-content-between align-items-center bg-white"><h5 class="card-title mb-0">${annonce.titre || ''}</h5><span class="badge bg-primary">${annonce.prix ? Number(annonce.prix).toFixed(2) + ' €' : 'Prix non défini'}</span></div><div class="card-body"><div class="mb-3"><div class="d-flex align-items-center mb-2"><span class="me-2 fw-bold">Client :</span><span>${annonce.nom_client || ''}</span></div><div class="d-flex justify-content-between mb-2"><div><i class="fas fa-map-marker-alt text-danger me-1"></i><span class="fw-bold">De :</span></div><span class="text-truncate">${annonce.ville_depart || ''}</span></div><div class="d-flex justify-content-between mb-2"><div><i class="fas fa-map-marker-alt text-success me-1"></i><span class="fw-bold">À :</span></div><span class="text-truncate">${annonce.ville_arrivee || ''}</span></div><div class="d-flex justify-content-between mb-3"><div><i class="fas fa-calendar-alt me-1"></i><span class="fw-bold">Livraison souhaitée :</span></div><span class="${urgence}">${annonce.date_livraison_souhaitee ? new Date(annonce.date_livraison_souhaitee).toLocaleDateString('fr-FR') : 'Non précisée'} ${jours_restants}</span></div><div class="mb-3"><strong>Description :</strong><p class="mb-0">${(annonce.description || '').length > 150 ? annonce.description.substring(0, 150) + '...' : annonce.description || ''}</p></div></div><div class="d-flex align-items-center mb-3"><span class="badge bg-secondary me-2">Statut:</span><span>${dot} ${annonce.statut || ''}</span></div><div class="d-flex flex-column gap-2"><button type="button" class="btn btn-success w-100 btn-accepter-livraison" data-id="${annonce.id}"><i class="fas fa-check me-1"></i> Accepter la livraison</button><a href="livraisons.php?id=${annonce.id}" class="btn btn-outline-primary"><i class="fas fa-eye me-1"></i> Détails</a></div>`;
             if (annonce.segmentation_possible == 1) {
               html += `<hr><h6 class="mb-3"><i class="fas fa-cut me-1"></i> Proposer un segment</h6>
@@ -168,15 +147,6 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'li
               html += `</select>
                 <button type="button" class="btn btn-warning btn-proposer-segment" data-id-annonce="${annonce.id}"><i class="fas fa-cut me-1"></i> Proposer un segment</button>
               </div>`;
-=======
-            html += `<div class="col"><div class="card h-100 shadow-sm"><div class="card-header d-flex justify-content-between align-items-center bg-white"><h5 class="card-title mb-0">${annonce.titre || ''}</h5><span class="badge bg-primary">${annonce.prix ? Number(annonce.prix).toFixed(2) + ' €' : 'Prix non défini'}</span></div><div class="card-body"><div class="mb-3"><div class="d-flex align-items-center mb-2"><span class="me-2 fw-bold">Client :</span><span>${annonce.nom_client || ''}</span></div><div class="d-flex justify-content-between mb-2"><div><i class="fas fa-map-marker-alt text-danger me-1"></i><span class="fw-bold">De :</span></div><span class="text-truncate">${annonce.ville_depart || ''}</span></div><div class="d-flex justify-content-between mb-2"><div><i class="fas fa-map-marker-alt text-success me-1"></i><span class="fw-bold">À :</span></div><span class="text-truncate">${annonce.ville_arrivee || ''}</span></div><div class="d-flex justify-content-between mb-3"><div><i class="fas fa-calendar-alt me-1"></i><span class="fw-bold">Livraison souhaitée :</span></div><span class="${urgence}">${annonce.date_livraison_souhaitee ? new Date(annonce.date_livraison_souhaitee).toLocaleDateString('fr-FR') : 'Non précisée'} ${jours_restants}</span></div><div class="mb-3"><strong>Description :</strong><p class="mb-0">${(annonce.description || '').length > 150 ? annonce.description.substring(0, 150) + '...' : annonce.description || ''}</p></div></div><div class="d-flex align-items-center mb-3"><span class="badge bg-secondary me-2">Statut:</span><span>${dot} ${annonce.statut || ''}</span></div><div class="d-flex flex-column gap-2"><form method="POST" action="accepter_annonce.php"><input type="hidden" name="id_annonce" value="${annonce.id}"><button type="submit" class="btn btn-success w-100"><i class="fas fa-check me-1"></i> Accepter la livraison</button></form><a href="livraisons.php?id=${annonce.id}" class="btn btn-outline-primary"><i class="fas fa-eye me-1"></i> Détails</a></div>`;
-            if (annonce.segmentation_possible == 1) {
-              html += `<hr><h6 class="mb-3"><i class="fas fa-cut me-1"></i> Proposer un segment</h6><form method="POST" action="proposer_segment.php"><input type="hidden" name="id_annonce" value="${annonce.id}"><input type="hidden" name="point_relais_depart" value="origine"><input type="hidden" name="segment_depart" value="${annonce.ville_depart}"><input type="hidden" name="segment_arrivee" value="${annonce.ville_arrivee}"><div class="mb-3"><label class="form-label">Point de départ</label><input type="text" class="form-control form-control-sm" value="${annonce.ville_depart}" disabled></div><div class="mb-3"><label class="form-label">Point d'arrivée</label><select name="point_relais_arrivee" class="form-select form-select-sm" required><option value="destination">Adresse de destination: ${annonce.ville_arrivee}</option>`;
-              pointsRelais.forEach(point => {
-                html += `<option value="${point.id}">${point.nom} - ${point.ville}</option>`;
-              });
-              html += `</select></div><button type="submit" class="btn btn-warning w-100"><i class="fas fa-cut me-1"></i> Proposer un segment</button></form>`;
->>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
             } else {
               html += `<div class="alert alert-light mt-3 mb-0"><i class="fas fa-info-circle me-1"></i> La segmentation n'est pas possible pour cette annonce.</div>`;
             }
@@ -184,7 +154,6 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'li
           });
           html += '</div>';
           annoncesList.innerHTML = html;
-<<<<<<< HEAD
           setTimeout(() => {
             document.querySelectorAll('.btn-accepter-livraison').forEach(btn => {
               btn.addEventListener('click', function () {
@@ -246,8 +215,6 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'li
               });
             });
           }, 100);
-=======
->>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
         })
         .catch(e => {
           annoncesList.innerHTML = '<div class="alert alert-danger">Erreur JS : ' + e + '</div>';
@@ -260,12 +227,7 @@ if (!isset($_SESSION['utilisateur']) || $_SESSION['utilisateur']['role'] !== 'li
     });
     btnReset.addEventListener('click', function () {
       villeSelect.value = '';
-<<<<<<< HEAD
       document.getElementById('search').value = '';
-=======
-      prixMinInput.value = '';
-      prixMaxInput.value = '';
->>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
       triSelect.value = 'recent';
       chargerAnnonces();
     });

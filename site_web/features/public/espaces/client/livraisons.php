@@ -83,19 +83,15 @@ function afficherLivraison(data) {
       <li><strong>Date prise en charge :</strong> ${data.livraison.date_prise_en_charge || ''}</li>
       <li><strong>Date de livraison :</strong> ${data.livraison.date_livraison || ''}</li>
     </ul>`;
-<<<<<<< HEAD
     // Ajout bouton validation si en attente
     if (data.livraison.validation_client === 0) {
       html += `<button id="btn-valider-livraison" class="btn btn-success">Valider la prise en charge</button>`;
     }
-=======
->>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
   } else {
     html += '<p>Pas encore pris en charge.</p>';
   }
   info.innerHTML = html;
 
-<<<<<<< HEAD
   // JS bouton validation
   setTimeout(() => {
     const btn = document.getElementById('btn-valider-livraison');
@@ -125,8 +121,6 @@ function afficherLivraison(data) {
     }
   }, 100);
 
-=======
->>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
   // Itinéraire adresses
   document.getElementById('itineraire-adresses').innerHTML = `
     <li><strong>Départ :</strong> ${data.annonce.ville_depart || ''}</li>

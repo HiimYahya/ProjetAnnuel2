@@ -13,18 +13,14 @@ if (!$id_annonce) {
     echo json_encode(['error' => 'ID annonce manquant']);
     exit;
 }
-<<<<<<< HEAD
 // Annonce (tous les champs)
 $stmtAnnonce = $conn->prepare("SELECT * FROM annonces WHERE id = ?");
 $stmtAnnonce->execute([$id_annonce]);
 $annonce = $stmtAnnonce->fetch(PDO::FETCH_ASSOC);
-=======
->>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
 // Livraison
 $stmt = $conn->prepare("SELECT l.*, u.nom AS nom_livreur FROM livraisons l LEFT JOIN utilisateurs u ON l.id_livreur = u.id WHERE l.id_annonce = ?");
 $stmt->execute([$id_annonce]);
 $livraison = $stmt->fetch(PDO::FETCH_ASSOC);
-<<<<<<< HEAD
 $pret_a_commencer = false;
 $id_first = null;
 $id_prev = null;
@@ -87,14 +83,3 @@ echo json_encode([
     'all_ids' => $all_ids,
     'all_livraisons' => $all_livraisons
 ]); 
-=======
-// Annonce
-$stmtAnnonce = $conn->prepare("SELECT * FROM annonces WHERE id = ?");
-$stmtAnnonce->execute([$id_annonce]);
-$annonce = $stmtAnnonce->fetch(PDO::FETCH_ASSOC);
-// Segments
-$stmt_segments = $conn->prepare("SELECT s.*, u.nom AS nom_livreur, pr_depart.nom AS point_relais_depart_nom, pr_depart.ville AS point_relais_depart_ville, pr_arrivee.nom AS point_relais_arrivee_nom, pr_arrivee.ville AS point_relais_arrivee_ville FROM segments s LEFT JOIN utilisateurs u ON s.id_livreur = u.id LEFT JOIN points_relais pr_depart ON s.point_relais_depart = pr_depart.id LEFT JOIN points_relais pr_arrivee ON s.point_relais_arrivee = pr_arrivee.id WHERE s.id_annonce = ? ORDER BY s.id");
-$stmt_segments->execute([$id_annonce]);
-$segments = $stmt_segments->fetchAll(PDO::FETCH_ASSOC);
-echo json_encode(['livraison' => $livraison, 'annonce' => $annonce, 'segments' => $segments]); 
->>>>>>> d17c8ef584a4a876f47e451e8a1a3a9ec69141b3
